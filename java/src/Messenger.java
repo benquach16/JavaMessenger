@@ -52,7 +52,7 @@ public class Messenger {
 	static BufferedReader in = new BufferedReader(
                                 new InputStreamReader(System.in));
 
-	private PanelFactory _panelFactory = new PanelFactory();
+	private static PanelFactory _panelFactory = new PanelFactory();
 
    /**
     * Creates a new instance of Messenger
@@ -294,18 +294,7 @@ public class Messenger {
 											 {
 												 public void run()
 													 {
-														 BasicWindow registerWindow = new BasicWindow();
-														 Panel registerPanel = new Panel();
-														 registerPanel.setLayoutManager(new GridLayout(2));
-														 registerPanel.addComponent(new Label("Username"));
-														 registerPanel.addComponent(new TextBox());
-														 registerPanel.addComponent(new Label("Password"));
-														 registerPanel.addComponent(new TextBox());
-														 registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
-														 registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
-														 registerPanel.addComponent(new Button("Submit"));
-														 registerWindow.setComponent(registerPanel);
-														 gui.addWindowAndWait(registerWindow);
+														 gui.addWindowAndWait(_panelFactory.createRegisterWindow());
 													 }
 											 });
 		  mainPanel.addComponent(loginButton);

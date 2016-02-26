@@ -19,7 +19,7 @@ public class PanelFactory
 		
 	}
 
-	static public Window createRegisterWindow()
+	public Window createRegisterWindow()
 	{
 		BasicWindow registerWindow = new BasicWindow();
 		Panel registerPanel = new Panel();
@@ -31,6 +31,9 @@ public class PanelFactory
 		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
 		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
 		registerPanel.addComponent(new Button("Submit"));
+		registerPanel.addComponent(new Button("Cancel"));
+
+		
 		registerWindow.setComponent(registerPanel);
 		return registerWindow;
 	}
