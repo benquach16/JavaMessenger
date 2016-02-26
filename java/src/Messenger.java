@@ -261,8 +261,15 @@ public class Messenger {
 	  
       Messenger esql = null;
       try{
+		  // use postgres JDBC driver.
+		  Class.forName ("org.postgresql.Driver").newInstance ();
+		  // instantiate the Messenger object and creates a physical
+		  // connection.
+		  String dbname = args[0];
+		  String dbport = args[1];
+		  String user = args[2];
+		  esql = new Messenger (dbname, dbport, user, "");
 		  
-
 		  // Setup terminal and screen layers
 		  Terminal terminal = new DefaultTerminalFactory().createTerminal();
 		  Screen screen = new TerminalScreen(terminal);
@@ -284,19 +291,26 @@ public class Messenger {
 		  mainPanel.addComponent(new Label("Password:"));
 		  mainPanel.addComponent(new TextBox());		  
 		  //create buttons
-		  Button loginButton = new Button("Login");
+		  Button loginButton = new Button("Login",
+				  new Runnable()
+				  {
+					  public void run()
+					  {
+						  _panelFactory.createUserWindow(gui);
+					  }
+				  });
 
 		  //THIS NEEDS TO BE REDONE
 		  //STORING EVERYTHING IN A CALLBACK IS BADD
 		  //we also get callback hell
 		  Button registerButton = new Button("Register",
-											 new Runnable()
-											 {
-												 public void run()
-												 {
-													 gui.addWindowAndWait(_panelFactory.createRegisterWindow());
-												 }
-											 });
+				 new Runnable()
+				 {
+					 public void run()
+					 {
+						 _panelFactory.createRegisterWindow(gui);
+					 }
+				 });
 		  mainPanel.addComponent(loginButton);
 		  mainPanel.addComponent(registerButton);
 
