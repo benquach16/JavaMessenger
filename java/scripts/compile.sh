@@ -5,7 +5,7 @@ export JAVA_HOME=/usr/csshare/pkgs/jdk1.7.0_17
 export PATH=$JAVA_HOME/bin:$PATH
 
 # compile the java program
-javac -d $DIR/../classes -classpath $DIR/../lib/lanterna-3.0.0-beta2.jar $DIR/../src/Messenger.java
+javac -d $DIR/../classes -classpath $DIR/../lib/lanterna-3.0.0-beta2.jar $DIR/../src/Messenger.java $DIR/../src/PanelFactory.java
 
 #run the java program
 #Use your database name, port number and login

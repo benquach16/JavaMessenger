@@ -9,6 +9,7 @@
  * Target DBMS: 'Postgres'
  *
  */
+package JMessage;
 
 
 import java.sql.DriverManager;
@@ -43,13 +44,15 @@ import com.googlecode.lanterna.TerminalPosition;
  */
 public class Messenger {
 
-   // reference to physical database connection.
-   private Connection _connection = null;
+	// reference to physical database connection.
+	private Connection _connection = null;
 
-   // handling the keyboard inputs through a BufferedReader
-   // This variable can be global for convenience.
-   static BufferedReader in = new BufferedReader(
+	// handling the keyboard inputs through a BufferedReader
+	// This variable can be global for convenience.
+	static BufferedReader in = new BufferedReader(
                                 new InputStreamReader(System.in));
+
+	private PanelFactory _panelFactory = new PanelFactory();
 
    /**
     * Creates a new instance of Messenger

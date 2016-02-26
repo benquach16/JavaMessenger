@@ -1,5 +1,8 @@
 //factory method pattern
 //create panels from this class
+
+package JMessage;
+
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.gui2.*;
@@ -16,7 +19,19 @@ public class PanelFactory
 		
 	}
 
-	public Panel createRegisterPanel()
+	static public Window createRegisterWindow()
 	{
+		BasicWindow registerWindow = new BasicWindow();
+		Panel registerPanel = new Panel();
+		registerPanel.setLayoutManager(new GridLayout(2));
+		registerPanel.addComponent(new Label("Username"));
+		registerPanel.addComponent(new TextBox());
+		registerPanel.addComponent(new Label("Password"));
+		registerPanel.addComponent(new TextBox());
+		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+		registerPanel.addComponent(new Button("Submit"));
+		registerWindow.setComponent(registerPanel);
+		return registerWindow;
 	}
 }//end PanelFactory
