@@ -279,9 +279,9 @@ public class Messenger {
   		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
   		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
 		  
-		  mainPanel.addComponent(new Label("Username"));
+		  mainPanel.addComponent(new Label("Username:"));
 		  mainPanel.addComponent(new TextBox());
-		  mainPanel.addComponent(new Label("Password"));
+		  mainPanel.addComponent(new Label("Password:"));
 		  mainPanel.addComponent(new TextBox());		  
 		  //create buttons
 		  Button loginButton = new Button("Login");
@@ -293,9 +293,9 @@ public class Messenger {
 											 new Runnable()
 											 {
 												 public void run()
-													 {
-														 gui.addWindowAndWait(_panelFactory.createRegisterWindow());
-													 }
+												 {
+													 gui.addWindowAndWait(_panelFactory.createRegisterWindow());
+												 }
 											 });
 		  mainPanel.addComponent(loginButton);
 		  mainPanel.addComponent(registerButton);

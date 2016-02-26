@@ -3,6 +3,21 @@
 
 package JMessage;
 
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.gui2.*;
@@ -23,18 +38,55 @@ public class PanelFactory
 	{
 		BasicWindow registerWindow = new BasicWindow();
 		Panel registerPanel = new Panel();
-		registerPanel.setLayoutManager(new GridLayout(2));
-		registerPanel.addComponent(new Label("Username"));
-		registerPanel.addComponent(new TextBox());
-		registerPanel.addComponent(new Label("Password"));
-		registerPanel.addComponent(new TextBox());
-		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
-		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
-		registerPanel.addComponent(new Button("Submit"));
-		registerPanel.addComponent(new Button("Cancel"));
+
+		TextBox usernameText = new TextBox();
+		TextBox passwordText = new TextBox();
+		Button submitButton = new Button("Submit",
+										 new Runnable()
+										 {
+											 public void run()
+											 {
+												 //grabh information from text files and insert them into a database
+												 String username = usernameText.getText();
+												 String password = passwordText.getText();
+					
+											 }
+										 });
 
 		
+		Button cancelButton = new Button("Cancel",
+										 new Runnable()
+										 {
+											 public void run()
+											 {
+												 registerWindow.close();
+											 }
+										 });
+		registerPanel.setLayoutManager(new GridLayout(2));
+		registerPanel.addComponent(new Label("Username:"));
+		registerPanel.addComponent(usernameText);
+		registerPanel.addComponent(new Label("Password:"));
+		registerPanel.addComponent(passwordText);
+		registerPanel.addComponent(new Label("Phone:"));
+		registerPanel.addComponent(new TextBox());
+		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+		registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+		registerPanel.addComponent(submitButton);
+		registerPanel.addComponent(cancelButton);
+
+		//create user here
 		registerWindow.setComponent(registerPanel);
 		return registerWindow;
 	}
+
+	//all the messaging stuff should be here
+	//chat lists, etc
+	public Window createUserWindow()
+	{
+		BasicWindow userWindow = new BasicWindow();
+
+		
+		return userWindow;
+	}
+
 }//end PanelFactory
