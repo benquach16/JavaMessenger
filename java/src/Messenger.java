@@ -75,6 +75,8 @@ public class Messenger {
          System.out.println("Done");
       }catch (Exception e){
          System.err.println("Error - Unable to Connect to Database: " + e.getMessage() );
+
+
          System.out.println("Make sure you started postgres on this machine");
          System.exit(-1);
 
@@ -241,6 +243,8 @@ public class Messenger {
     *
     * @param args the command line arguments this inclues the <mysql|pgsql> <login file>
     */
+
+
    public static void main (String[] args) {
       if (args.length != 3) {
          System.err.println (
@@ -251,7 +255,7 @@ public class Messenger {
          return;
       }//end if
       
-
+	  
       Messenger esql = null;
       try{
 		  
@@ -260,24 +264,52 @@ public class Messenger {
 		  Terminal terminal = new DefaultTerminalFactory().createTerminal();
 		  Screen screen = new TerminalScreen(terminal);
 		  screen.startScreen();
+		  MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
+
 
 		  // Create panel to hold components
 		  Panel mainPanel = new Panel();
-		  //mainPanel.setLayoutManager(new GridLayout(2));
+		  mainPanel.setLayoutManager(new GridLayout(2));
 		  mainPanel.addComponent(new Label("JMessage"));
-  		  mainPanel.addComponent(new Label("Login or register below to start using this app!"));
-  		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
-		  mainPanel.addComponent(new Button("Login"));
-		  mainPanel.addComponent(new Button("Register User"));		  
-		  
+		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
 
+  		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+  		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+		  
+		  mainPanel.addComponent(new Label("Username"));
+		  mainPanel.addComponent(new TextBox());
+		  mainPanel.addComponent(new Label("Password"));
+		  mainPanel.addComponent(new TextBox());		  
+		  //create buttons
+		  Button loginButton = new Button("Login");
+
+		  //THIS NEEDS TO BE REDONE
+		  //STORING EVERYTHING IN A CALLBACK IS BADDDDDF
+		  Button registerButton = new Button("Register",
+											 new Runnable()
+											 {
+												 public void run()
+													 {
+														 BasicWindow registerWindow = new BasicWindow();
+														 Panel registerPanel = new Panel();
+														 registerPanel.setLayoutManager(new GridLayout(2));
+														 registerPanel.addComponent(new Label("Username"));
+														 registerPanel.addComponent(new TextBox());
+														 registerWindow.setComponent(registerPanel);
+														 gui.addWindowAndWait(registerWindow);
+													 }
+											 });
+		  mainPanel.addComponent(loginButton);
+		  mainPanel.addComponent(registerButton);
+
+		  
 		  // Create window to hold the panel
 		  BasicWindow window = new BasicWindow();
 		  window.setComponent(mainPanel);
 		  window.setPosition(new TerminalPosition(5,5));
 		  window.setHints(Arrays.asList(Window.Hint.CENTERED));
 		  // Create gui and start gui
-		  MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
+
 		  gui.addWindowAndWait(window);
 
       }catch(Exception e) {
