@@ -284,7 +284,8 @@ public class Messenger {
 		  Button loginButton = new Button("Login");
 
 		  //THIS NEEDS TO BE REDONE
-		  //STORING EVERYTHING IN A CALLBACK IS BADDDDDF
+		  //STORING EVERYTHING IN A CALLBACK IS BADD
+		  //we also get callback hell
 		  Button registerButton = new Button("Register",
 											 new Runnable()
 											 {
@@ -295,6 +296,11 @@ public class Messenger {
 														 registerPanel.setLayoutManager(new GridLayout(2));
 														 registerPanel.addComponent(new Label("Username"));
 														 registerPanel.addComponent(new TextBox());
+														 registerPanel.addComponent(new Label("Password"));
+														 registerPanel.addComponent(new TextBox());
+														 registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+														 registerPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+														 registerPanel.addComponent(new Button("Submit"));
 														 registerWindow.setComponent(registerPanel);
 														 gui.addWindowAndWait(registerWindow);
 													 }
