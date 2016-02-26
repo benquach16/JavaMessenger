@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 
 import com.googlecode.lanterna.TerminalSize;
@@ -32,7 +34,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-                     
+import com.googlecode.lanterna.TerminalPosition;                     
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -249,7 +251,7 @@ public class Messenger {
          return;
       }//end if
       
-      Greeting();
+
       Messenger esql = null;
       try{
 		  
@@ -260,22 +262,20 @@ public class Messenger {
 		  screen.startScreen();
 
 		  // Create panel to hold components
-		  Panel panel = new Panel();
-		  panel.setLayoutManager(new GridLayout(2));
-
-		  panel.addComponent(new Label("Forename"));
-		  panel.addComponent(new TextBox());
-
-		  panel.addComponent(new Label("Surname"));
-		  panel.addComponent(new TextBox());
-
-		  panel.addComponent(new EmptySpace(new TerminalSize(0,0))); // Empty space underneath labels
-		  panel.addComponent(new Button("Submit"));
+		  Panel mainPanel = new Panel();
+		  //mainPanel.setLayoutManager(new GridLayout(2));
+		  mainPanel.addComponent(new Label("JMessage"));
+  		  mainPanel.addComponent(new Label("Login or register below to start using this app!"));
+  		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+		  mainPanel.addComponent(new Button("Login"));
+		  mainPanel.addComponent(new Button("Register User"));		  
+		  
 
 		  // Create window to hold the panel
 		  BasicWindow window = new BasicWindow();
-		  window.setComponent(panel);
-
+		  window.setComponent(mainPanel);
+		  window.setPosition(new TerminalPosition(5,5));
+		  window.setHints(Arrays.asList(Window.Hint.CENTERED));
 		  // Create gui and start gui
 		  MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
 		  gui.addWindowAndWait(window);
