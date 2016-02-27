@@ -40,10 +40,15 @@ public class PanelFactory
 		return mainWindow;
 	}
 
-	public Window createMessagePopup(String str)
+	public Window createMessagePopup(MultiWindowTextGUI gui, String str)
 	{
 		BasicWindow window = new BasicWindow();
 		Panel panel = new Panel();
+		panel.addComponent(new Label(str));
+
+		
+		window.setComponent(panel);
+		gui.addWindowAndWait(window);
 		
 		return window;		
 	}
@@ -68,6 +73,18 @@ public class PanelFactory
 					 String phone = phoneText.getText();
 					 try
 					 {
+						 
+						 //Creating empty contact\block lists for a user
+						 esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('block')");
+						 int block_id = esql.getCurrSeqVal("user_list_list_id_seq");
+						 esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('contact')");
+						 int contact_id = esql.getCurrSeqVal("user_list_list_id_seq");
+         
+						 String query = String.format("INSERT INTO USR (phoneNum, login, password, block_list, contact_list) VALUES ('%s','%s','%s',%s,%s)", phone, login, password, block_id, contact_id);
+
+						 esql.executeUpdate(query);
+
+						 
 						 //create a textbox displaying success or error
 						 BasicWindow successWindow = new BasicWindow();
 						 Panel successPanel = new Panel();
@@ -82,15 +99,15 @@ public class PanelFactory
 									  }
 								  }));
 						 successWindow.setComponent(successPanel);
-						
 						 gui.addWindowAndWait(successWindow);
 						 
 					 }
 					 catch(Exception e)
 					 {
 						 //find out how to print real debug msgs
-						 
-						 
+						 String str = e.getMessage();
+						 //createMessagePopup(gui, e.getMessage());
+						 createMessagePopup(gui, "Failed to create user");
 					 }
 						
 				 }

@@ -66,7 +66,7 @@ public class Messenger {
    public Messenger (String dbname, String dbport, String user, String passwd) throws SQLException {
 
 
-	   /*
+	   
       System.out.print("Connecting to database...");
       try{
          // constructs the connection URL
@@ -84,7 +84,7 @@ public class Messenger {
          System.exit(-1);
 
       }//end catch
-	   */
+	   
    }//end Messenger
 
    /**
@@ -258,8 +258,8 @@ public class Messenger {
          return;
       }//end if
 	  
-	  Messenger ptr = null;
-      try{
+      try
+	  {
 		  // use postgres JDBC driver.
 		  Class.forName ("org.postgresql.Driver").newInstance ();
 		  // instantiate the Messenger object and creates a physical
@@ -269,7 +269,7 @@ public class Messenger {
 		  String user = args[2];
 		  //some sort of weird scoping issue happens
 		  Messenger esql = new Messenger (dbname, dbport, user, "");
-		  ptr = esql;
+
 		  // Setup terminal and screen layers
 		  Terminal terminal = new DefaultTerminalFactory().createTerminal();
 		  Screen screen = new TerminalScreen(terminal);
@@ -332,14 +332,6 @@ public class Messenger {
 	  finally
 	  {
          // make sure to cleanup the created table and close the connection.
-         try
-		 {
-			 ptr.cleanup();
-         }
-		 catch (Exception e)
-		 {
-            // ignored.
-         }//end try
       }//end try
    }//end main
   
