@@ -27,8 +27,11 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.TerminalPosition; 
 
+
+
 public class PanelFactory
 {
+
 	public PanelFactory()
 	{
 		
@@ -61,6 +64,12 @@ public class PanelFactory
 		return window;		
 	}
 
+	public Window createChatWindow(final MultiWindowTextGUI gui, final Messenger esql)
+	{
+	    final BasicWindow window = new BasicWindow();
+	    return window;
+	}
+
 	//take in a handle
 	public Window createRegisterWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
@@ -70,53 +79,57 @@ public class PanelFactory
 		final TextBox usernameText = new TextBox();
 		final TextBox passwordText = new TextBox();
 		final TextBox phoneText = new TextBox();
-		Button submitButton = new Button("Submit",
-			 new Runnable()
-			 {
-				 public void run()
+		Button submitButton = new Button
+		    ("Submit",
+		     new Runnable()
+		     {
+			 public void run()
+			     {
+				 //grabh information from text files and insert them into a database
+				 String login = usernameText.getText();
+				 String password = passwordText.getText();
+				 String phone = phoneText.getText();
+				 try
 				 {
-					 //grabh information from text files and insert them into a database
-					 String login = usernameText.getText();
-					 String password = passwordText.getText();
-					 String phone = phoneText.getText();
-					 try
-					 {
 						 
-					     esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('block')");
-					     int block_id = esql.getCurrSeqVal("user_list_list_id_seq");
-					     esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('contact')");
-					     int contact_id = esql.getCurrSeqVal("user_list_list_id_seq");
+				     esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('block')");
+				     int block_id = esql.getCurrSeqVal("user_list_list_id_seq");
+				     esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('contact')");
+				     int contact_id = esql.getCurrSeqVal("user_list_list_id_seq");
          
-					     String query = String.format("INSERT INTO USR (phoneNum, login, password, block_list, contact_list) VALUES ('%s','%s','%s',%s,%s)", phone, login, password, block_id, contact_id);
+				     String query = String.format("INSERT INTO USR (phoneNum, login, password, block_list, contact_list) VALUES ('%s','%s','%s',%s,%s)", phone, login, password, block_id, contact_id);
 
-					     esql.executeUpdate(query);						 
-						 //create a textbox displaying success or error
-						 final BasicWindow successWindow = new BasicWindow();
-						 final Panel successPanel = new Panel();
-						 successPanel.addComponent(new Label("Successfully registered user!"));
-						 successPanel.addComponent(new Button("OK",
-								  new Runnable()
-								  {
-									  public void run()
-									  {
-										  successWindow.close();
-										  registerWindow.close();
-									  }
-								  }));
-						 successWindow.setComponent(successPanel);
-						 gui.addWindowAndWait(successWindow);
+				     esql.executeUpdate(query);						 
+				     //create a textbox displaying success or error
+				     final BasicWindow successWindow = new BasicWindow();
+				     final Panel successPanel = new Panel();
+				     successPanel.addComponent(new Label("Successfully registered user!"));
+				     successPanel.addComponent(new Button
+							       ("OK",
+								new Runnable()
+								{
+								    public void run()
+									{
+									    successWindow.close();
+									    registerWindow.close();
+									}
+								}));
+				     successWindow.setComponent(successPanel);
+				     gui.addWindowAndWait(successWindow);
 						 
-					 }
-					 catch(Exception e)
-					 {
-						 //find out how to print real debug msgs
-						 String str = e.getMessage();
-						 //createMessagePopup(gui, e.getMessage());
-						 createMessagePopup(gui, "Failed to create user");
-					 }
-						
 				 }
-			 });
+				 catch(Exception e)
+				 {
+				     //find out how to print real debug msgs
+				     String str = e.getMessage();
+				     Thread t = Thread.currentThread();
+				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
+				     createMessagePopup(gui, e.getMessage());
+				     //createMessagePopup(gui, "Failed to create user");
+				 }
+						
+			     }
+		     });
 
 		
 		Button cancelButton = new Button("Cancel",
@@ -147,8 +160,10 @@ public class PanelFactory
 
 	//all the messaging stuff should be here
 	//chat lists, etc
-	public Window createUserWindow(MultiWindowTextGUI gui)
+    public Window createUserWindow(MultiWindowTextGUI gui, Messenger esql)
 	{
+
+
 		BasicWindow userWindow = new BasicWindow();
 		//userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
 		userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
@@ -170,7 +185,8 @@ public class PanelFactory
 		userPanel.addComponent(new Button("Create Chat"));
 
 		userPanel.addComponent(new Button("Logout"));
-		userWindow.setComponent(userPanel.withBorder(Borders.doubleLine("JMessage")));
+		
+		userWindow.setComponent(userPanel.withBorder(Borders.doubleLine(Messenger._currentUser)));
 		gui.addWindowAndWait(userWindow);
 		return userWindow;
 	}

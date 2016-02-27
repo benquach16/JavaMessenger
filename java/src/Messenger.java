@@ -44,15 +44,18 @@ import com.googlecode.lanterna.TerminalPosition;
  */
 public class Messenger {
 
-	// reference to physical database connection.
-	private Connection _connection = null;
+    // reference to physical database connection.
+    private Connection _connection = null;
 
-	// handling the keyboard inputs through a BufferedReader
-	// This variable can be global for convenience.
-	static BufferedReader in = new BufferedReader(
-                                new InputStreamReader(System.in));
+    // handling the keyboard inputs through a BufferedReader
+    // This variable can be global for convenience.
+    static BufferedReader in = new BufferedReader(
+	new InputStreamReader(System.in));
 
-	private static PanelFactory _panelFactory = new PanelFactory();
+    private static PanelFactory _panelFactory = new PanelFactory();
+    //I AM A BAD PERSON
+    //I'M SORRY
+    public static String _currentUser = "test";
 
    /**
     * Creates a new instance of Messenger
@@ -281,7 +284,7 @@ public class Messenger {
 	    // Create panel to hold components
 	    Panel mainPanel = new Panel();
 	    mainPanel.setLayoutManager(new GridLayout(2));
-	    mainPanel.addComponent(new Label("JMessage"));
+	    mainPanel.addComponent(new Label("Welcome to JMessage!"));
 	    mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
 
 	    mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
@@ -293,46 +296,43 @@ public class Messenger {
 	    mainPanel.addComponent(new Label("Password:"));
 	    mainPanel.addComponent(password);		  
 	    //create buttons
-	    Button loginButton = new Button("Login",
-		    new Runnable()
+	    Button loginButton = new Button(
+		"Login", new Runnable()
 		    {
 			public void run()
 			    {
-				//try to login first				
 				String login = username.getText();
 				String pass = password.getText();
-				
 				String ret = LogIn(esql, login, pass);
 				if(ret != null)
 				{
-				    //success
-				    _panelFactory.createUserWindow(gui);
+				    Messenger._currentUser = ret;
+				    _panelFactory.createUserWindow(gui, esql);
 				}
 				else
 				{
-				    _panelFactory.createMessagePopup(gui, "Failed to login");
+				    _panelFactory.createMessagePopup(gui, "Could not find user!");
 				}
 			    }
 		    });
-
 	    //THIS NEEDS TO BE REDONE
 	    //STORING EVERYTHING IN A CALLBACK IS BADD
 	    //we also get callback hell
 	    Button registerButton = new Button("Register",
-					       new Runnable()
-					       {
-						   public void run()
-						       {
-							   _panelFactory.createRegisterWindow(gui, esql);
-						       }
-					       });
+		       new Runnable()
+		       {
+			   public void run()
+			       {
+				   _panelFactory.createRegisterWindow(gui, esql);
+			       }
+		       });
 	    mainPanel.addComponent(loginButton);
 	    mainPanel.addComponent(registerButton);
 
 		  
 	    // Create window to hold the panel
 	    BasicWindow window = new BasicWindow();
-	    window.setComponent(mainPanel);
+	    window.setComponent(mainPanel.withBorder(Borders.singleLine("JMessage")));
 	    window.setPosition(new TerminalPosition(5,5));
 	    window.setHints(Arrays.asList(Window.Hint.CENTERED));
 	    // Create gui and start gui
