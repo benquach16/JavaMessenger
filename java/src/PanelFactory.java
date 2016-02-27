@@ -150,12 +150,27 @@ public class PanelFactory
 	public Window createUserWindow(MultiWindowTextGUI gui)
 	{
 		BasicWindow userWindow = new BasicWindow();
-		userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
+		//userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
+		userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
 		Panel userPanel = new Panel();
-		userPanel.setLayoutManager(new GridLayout(4));
-		userPanel.addComponent(new Label("Available Chats"));
-		userPanel.addComponent(new Label("Friends List"));
-		userWindow.setComponent(userPanel);
+		userPanel.setLayoutManager(new LinearLayout());
+		TerminalSize size = new TerminalSize(20, 10);
+		ActionListBox actionListBox = new ActionListBox(size);
+		actionListBox.addItem("Test", new Runnable()
+		    {
+			public void run()
+			    {
+			    }
+		    });
+		Panel chatPanel = new Panel();
+		chatPanel.addComponent(actionListBox);
+		userPanel.addComponent(chatPanel.withBorder(Borders.singleLine("List of chats you're in")));
+		userPanel.addComponent(new Button("Add a user to a Contacts List"));
+		userPanel.addComponent(new Button("Manage Contacts"));
+		userPanel.addComponent(new Button("Create Chat"));
+
+		userPanel.addComponent(new Button("Logout"));
+		userWindow.setComponent(userPanel.withBorder(Borders.doubleLine("JMessage")));
 		gui.addWindowAndWait(userWindow);
 		return userWindow;
 	}
