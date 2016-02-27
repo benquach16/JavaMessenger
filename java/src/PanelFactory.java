@@ -43,12 +43,13 @@ public class PanelFactory
 	public Window createMessagePopup(String str)
 	{
 		BasicWindow window = new BasicWindow();
+		Panel panel = new Panel();
 		
 		return window;		
 	}
 
 	//take in a handle
-	public Window createRegisterWindow(MultiWindowTextGUI gui)
+	public Window createRegisterWindow(MultiWindowTextGUI gui, Messenger esql)
 	{
 		BasicWindow registerWindow = new BasicWindow();
 		Panel registerPanel = new Panel();
@@ -67,7 +68,6 @@ public class PanelFactory
 					 String phone = phoneText.getText();
 					 try
 					 {
-
 						 //create a textbox displaying success or error
 						 BasicWindow successWindow = new BasicWindow();
 						 Panel successPanel = new Panel();

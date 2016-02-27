@@ -257,9 +257,8 @@ public class Messenger {
             " <dbname> <port> <user>");
          return;
       }//end if
-      
 	  
-      Messenger esql = null;
+	  Messenger ptr = null;
       try{
 		  // use postgres JDBC driver.
 		  Class.forName ("org.postgresql.Driver").newInstance ();
@@ -268,8 +267,9 @@ public class Messenger {
 		  String dbname = args[0];
 		  String dbport = args[1];
 		  String user = args[2];
-		  esql = new Messenger (dbname, dbport, user, "");
-		  
+		  //some sort of weird scoping issue happens
+		  Messenger esql = new Messenger (dbname, dbport, user, "");
+		  ptr = esql;
 		  // Setup terminal and screen layers
 		  Terminal terminal = new DefaultTerminalFactory().createTerminal();
 		  Screen screen = new TerminalScreen(terminal);
@@ -308,7 +308,7 @@ public class Messenger {
 				 {
 					 public void run()
 					 {
-						 _panelFactory.createRegisterWindow(gui);
+						 _panelFactory.createRegisterWindow(gui, esql);
 					 }
 				 });
 		  mainPanel.addComponent(loginButton);
@@ -324,15 +324,20 @@ public class Messenger {
 
 		  gui.addWindowAndWait(window);
 
-      }catch(Exception e) {
+      }
+	  catch(Exception e)
+	  {
 
-      }finally{
+      }
+	  finally
+	  {
          // make sure to cleanup the created table and close the connection.
-         try{
-            if(esql != null) {
-
-            }//end if
-         }catch (Exception e) {
+         try
+		 {
+			 ptr.cleanup();
+         }
+		 catch (Exception e)
+		 {
             // ignored.
          }//end try
       }//end try
