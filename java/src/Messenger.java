@@ -249,92 +249,106 @@ public class Messenger {
     */
 
 
-   public static void main (String[] args) {
-      if (args.length != 3) {
-         System.err.println (
-            "Usage: " +
-            "java [-classpath <classpath>] " +
-            Messenger.class.getName () +
-            " <dbname> <port> <user>");
-         return;
-      }//end if
+    public static void main (String[] args) {
+	if (args.length != 3) {
+	    System.err.println (
+		"Usage: " +
+		"java [-classpath <classpath>] " +
+		Messenger.class.getName () +
+		" <dbname> <port> <user>");
+	    return;
+	}//end if
 	  
-      try
-	  {
-		  // use postgres JDBC driver.
-		  Class.forName ("org.postgresql.Driver").newInstance ();
-		  // instantiate the Messenger object and creates a physical
-		  // connection.
-		  String dbname = args[0];
-		  String dbport = args[1];
-		  String user = args[2];
-		  //some sort of weird scoping issue happens
-		  final Messenger esql = new Messenger (dbname, dbport, user, "");
+	try
+	{
+	    // use postgres JDBC driver.
+	    Class.forName ("org.postgresql.Driver").newInstance ();
+	    // instantiate the Messenger object and creates a physical
+	    // connection.
+	    String dbname = args[0];
+	    String dbport = args[1];
+	    String user = args[2];
+	    //some sort of weird scoping issue happens
+	    final Messenger esql = new Messenger (dbname, dbport, user, "");
 
-		  // Setup terminal and screen layers
-		  Terminal terminal = new DefaultTerminalFactory().createTerminal();
-		  Screen screen = new TerminalScreen(terminal);
-		  screen.startScreen();
-		  final MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
+	    // Setup terminal and screen layers
+	    Terminal terminal = new DefaultTerminalFactory().createTerminal();
+	    Screen screen = new TerminalScreen(terminal);
+	    screen.startScreen();
+	    final MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
 
 
-		  // Create panel to hold components
-		  Panel mainPanel = new Panel();
-		  mainPanel.setLayoutManager(new GridLayout(2));
-		  mainPanel.addComponent(new Label("JMessage"));
-		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+	    // Create panel to hold components
+	    Panel mainPanel = new Panel();
+	    mainPanel.setLayoutManager(new GridLayout(2));
+	    mainPanel.addComponent(new Label("JMessage"));
+	    mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
 
-  		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
-  		  mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+	    mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+	    mainPanel.addComponent(new EmptySpace(new TerminalSize(1,1)));
+	    final TextBox username = new TextBox();
+	    final TextBox password = new TextBox();
+	    mainPanel.addComponent(new Label("Username:"));
+	    mainPanel.addComponent(username);
+	    mainPanel.addComponent(new Label("Password:"));
+	    mainPanel.addComponent(password);		  
+	    //create buttons
+	    Button loginButton = new Button("Login",
+		    new Runnable()
+		    {
+			public void run()
+			    {
+				//try to login first				
+				String login = username.getText();
+				String pass = password.getText();
+				
+				String ret = LogIn(esql, login, pass);
+				if(ret != null)
+				{
+				    //success
+				    _panelFactory.createUserWindow(gui);
+				}
+				else
+				{
+				    _panelFactory.createMessagePopup(gui, "Failed to login");
+				}
+			    }
+		    });
+
+	    //THIS NEEDS TO BE REDONE
+	    //STORING EVERYTHING IN A CALLBACK IS BADD
+	    //we also get callback hell
+	    Button registerButton = new Button("Register",
+					       new Runnable()
+					       {
+						   public void run()
+						       {
+							   _panelFactory.createRegisterWindow(gui, esql);
+						       }
+					       });
+	    mainPanel.addComponent(loginButton);
+	    mainPanel.addComponent(registerButton);
+
 		  
-		  mainPanel.addComponent(new Label("Username:"));
-		  mainPanel.addComponent(new TextBox());
-		  mainPanel.addComponent(new Label("Password:"));
-		  mainPanel.addComponent(new TextBox());		  
-		  //create buttons
-		  Button loginButton = new Button("Login",
-				  new Runnable()
-				  {
-					  public void run()
-					  {
-						  _panelFactory.createUserWindow(gui);
-					  }
-				  });
+	    // Create window to hold the panel
+	    BasicWindow window = new BasicWindow();
+	    window.setComponent(mainPanel);
+	    window.setPosition(new TerminalPosition(5,5));
+	    window.setHints(Arrays.asList(Window.Hint.CENTERED));
+	    // Create gui and start gui
 
-		  //THIS NEEDS TO BE REDONE
-		  //STORING EVERYTHING IN A CALLBACK IS BADD
-		  //we also get callback hell
-		  Button registerButton = new Button("Register",
-				 new Runnable()
-				 {
-					 public void run()
-					 {
-						 _panelFactory.createRegisterWindow(gui, esql);
-					 }
-				 });
-		  mainPanel.addComponent(loginButton);
-		  mainPanel.addComponent(registerButton);
+	    gui.addWindowAndWait(window);
 
-		  
-		  // Create window to hold the panel
-		  BasicWindow window = new BasicWindow();
-		  window.setComponent(mainPanel);
-		  window.setPosition(new TerminalPosition(5,5));
-		  window.setHints(Arrays.asList(Window.Hint.CENTERED));
-		  // Create gui and start gui
+	}
+	catch(Exception e)
+	{
 
-		  gui.addWindowAndWait(window);
-
-      }
-	  catch(Exception e)
-	  {
-
-      }
-	  finally
-	  {
-         // make sure to cleanup the created table and close the connection.
-      }//end try
-   }//end main
+	}
+	finally
+	{
+	    // make sure to cleanup the created table and close the connection.
+	}//end try
+    }//end main
   
    public static void Greeting(){
       System.out.println(
@@ -395,13 +409,8 @@ public class Messenger {
     * Check log in credentials for an existing user
     * @return User login or null is the user does not exist
     **/
-   public static String LogIn(Messenger esql){
+    public static String LogIn(Messenger esql, String login, String password){
       try{
-         System.out.print("\tEnter user login: ");
-         String login = in.readLine();
-         System.out.print("\tEnter user password: ");
-         String password = in.readLine();
-
          String query = String.format("SELECT * FROM Usr WHERE login = '%s' AND password = '%s'", login, password);
          int userNum = esql.executeQuery(query);
 	 if (userNum > 0)

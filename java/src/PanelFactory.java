@@ -42,10 +42,18 @@ public class PanelFactory
 
 	public Window createMessagePopup(MultiWindowTextGUI gui, String str)
 	{
-		BasicWindow window = new BasicWindow();
+		final BasicWindow window = new BasicWindow();
 		Panel panel = new Panel();
 		panel.addComponent(new Label(str));
-
+		panel.addComponent(new Button("OK",
+					      new Runnable()
+					      {
+						  //close button
+						  public void run()
+						      {
+							  window.close();
+						      }
+					      }));
 		
 		window.setComponent(panel);
 		gui.addWindowAndWait(window);
@@ -145,7 +153,8 @@ public class PanelFactory
 		userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
 		Panel userPanel = new Panel();
 		userPanel.setLayoutManager(new GridLayout(4));
-
+		userPanel.addComponent(new Label("Available Chats"));
+		userPanel.addComponent(new Label("Friends List"));
 		userWindow.setComponent(userPanel);
 		gui.addWindowAndWait(userWindow);
 		return userWindow;
