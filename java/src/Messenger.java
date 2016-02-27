@@ -69,6 +69,7 @@ public class Messenger {
 	   
       System.out.print("Connecting to database...");
       try{
+
          // constructs the connection URL
          String url = "jdbc:postgresql://localhost:" + dbport + "/" + dbname;
          System.out.println ("Connection URL: " + url + "\n");
@@ -84,7 +85,7 @@ public class Messenger {
          System.exit(-1);
 
       }//end catch
-	   
+   
    }//end Messenger
 
    /**
@@ -268,13 +269,13 @@ public class Messenger {
 		  String dbport = args[1];
 		  String user = args[2];
 		  //some sort of weird scoping issue happens
-		  Messenger esql = new Messenger (dbname, dbport, user, "");
+		  final Messenger esql = new Messenger (dbname, dbport, user, "");
 
 		  // Setup terminal and screen layers
 		  Terminal terminal = new DefaultTerminalFactory().createTerminal();
 		  Screen screen = new TerminalScreen(terminal);
 		  screen.startScreen();
-		  MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
+		  final MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
 
 
 		  // Create panel to hold components

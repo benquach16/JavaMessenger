@@ -54,14 +54,14 @@ public class PanelFactory
 	}
 
 	//take in a handle
-	public Window createRegisterWindow(MultiWindowTextGUI gui, Messenger esql)
+	public Window createRegisterWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
-		BasicWindow registerWindow = new BasicWindow();
+		final BasicWindow registerWindow = new BasicWindow();
 		Panel registerPanel = new Panel();
 
-		TextBox usernameText = new TextBox();
-		TextBox passwordText = new TextBox();
-		TextBox phoneText = new TextBox();
+		final TextBox usernameText = new TextBox();
+		final TextBox passwordText = new TextBox();
+		final TextBox phoneText = new TextBox();
 		Button submitButton = new Button("Submit",
 			 new Runnable()
 			 {
@@ -74,20 +74,17 @@ public class PanelFactory
 					 try
 					 {
 						 
-						 //Creating empty contact\block lists for a user
-						 esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('block')");
-						 int block_id = esql.getCurrSeqVal("user_list_list_id_seq");
-						 esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('contact')");
-						 int contact_id = esql.getCurrSeqVal("user_list_list_id_seq");
+					     esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('block')");
+					     int block_id = esql.getCurrSeqVal("user_list_list_id_seq");
+					     esql.executeUpdate("INSERT INTO USER_LIST(list_type) VALUES ('contact')");
+					     int contact_id = esql.getCurrSeqVal("user_list_list_id_seq");
          
-						 String query = String.format("INSERT INTO USR (phoneNum, login, password, block_list, contact_list) VALUES ('%s','%s','%s',%s,%s)", phone, login, password, block_id, contact_id);
+					     String query = String.format("INSERT INTO USR (phoneNum, login, password, block_list, contact_list) VALUES ('%s','%s','%s',%s,%s)", phone, login, password, block_id, contact_id);
 
-						 esql.executeUpdate(query);
-
-						 
+					     esql.executeUpdate(query);						 
 						 //create a textbox displaying success or error
-						 BasicWindow successWindow = new BasicWindow();
-						 Panel successPanel = new Panel();
+						 final BasicWindow successWindow = new BasicWindow();
+						 final Panel successPanel = new Panel();
 						 successPanel.addComponent(new Label("Successfully registered user!"));
 						 successPanel.addComponent(new Button("OK",
 								  new Runnable()
