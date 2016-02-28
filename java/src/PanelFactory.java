@@ -171,12 +171,26 @@ public class PanelFactory
 		userPanel.setLayoutManager(new LinearLayout());
 		TerminalSize size = new TerminalSize(20, 10);
 		ActionListBox actionListBox = new ActionListBox(size);
-		actionListBox.addItem("Test", new Runnable()
+		//DO A SQL QUERY HERE SO THAT WE CAN GET LIST OF CHATS
+		try
+		{
+		    String query = String.format("SELECT chat_id FROM CHAT_LIST WEHRE member = '%s'", Messenger._currentUser);
+		    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+		    for(int i = 0; i < ret.size(); i++)
 		    {
-			public void run()
+			actionListBox.addItem("Test", new Runnable()
 			    {
-			    }
-		    });
+				public void run()
+				    {
+				    }
+			    });
+		    }
+		}
+		catch(Exception e)
+		{
+		}
+		
+
 		Panel chatPanel = new Panel();
 		chatPanel.addComponent(actionListBox);
 		userPanel.addComponent(chatPanel.withBorder(Borders.singleLine("List of chats you're in")));
@@ -191,4 +205,8 @@ public class PanelFactory
 		return userWindow;
 	}
 
+    public Window createChatWindow(MultiWindowTextGUI gui, Messenger esql)
+	{
+	    
+	}
 }//end PanelFactory
