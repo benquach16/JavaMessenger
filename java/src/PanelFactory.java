@@ -164,7 +164,7 @@ public class PanelFactory
 	{
 
 
-		BasicWindow userWindow = new BasicWindow();
+		final BasicWindow userWindow = new BasicWindow();
 		//userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
 		userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
 		Panel userPanel = new Panel();
@@ -198,15 +198,28 @@ public class PanelFactory
 		userPanel.addComponent(new Button("Manage Contacts"));
 		userPanel.addComponent(new Button("Create Chat"));
 
-		userPanel.addComponent(new Button("Logout"));
+		userPanel.addComponent(new Button(
+					   "Logout", new Runnable()
+					       {
+						   public void run()
+						       {
+							   userWindow.close();
+						       }
+					       }));
 		
 		userWindow.setComponent(userPanel.withBorder(Borders.doubleLine(Messenger._currentUser)));
 		gui.addWindowAndWait(userWindow);
 		return userWindow;
 	}
 
-    public Window createChatWindow(MultiWindowTextGUI gui, Messenger esql)
+
+
+    //haha
+    public Window createCreateChatWindow(MultiWindowTextGUI gui, Messenger esql)
 	{
-	    
+		BasicWindow userWindow = new BasicWindow();	    
+		//use this to create a chat !
+		return userWindow;
 	}
+
 }//end PanelFactory
