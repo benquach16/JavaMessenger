@@ -191,8 +191,25 @@ public class PanelFactory
 	Panel chatPanel = new Panel();
 	chatPanel.addComponent(actionListBox);
 	userPanel.addComponent(chatPanel.withBorder(Borders.singleLine("List of chats you're in")));
-	userPanel.addComponent(new Button("Add a user to a Contacts List"));
-	userPanel.addComponent(new Button("Manage Contacts"));
+	userPanel.addComponent(
+	    new Button(
+		"Add a user to a Contacts List",
+		new Runnable()
+		{
+		    public void run()
+			{
+			    createAddUsersWindow(gui, esql);
+			}
+		}));
+	userPanel.addComponent(new Button(
+				   "Manage Contacts",
+				   new Runnable()
+				   {
+				       public void run()
+					   {
+					       createShowContactsWindow(gui,esql);
+					   }
+				   }));
 	userPanel.addComponent(new Button(
 				   "Create Chat", new Runnable()
 				       {
@@ -217,6 +234,16 @@ public class PanelFactory
     }
 
 
+    public Window createShowContactsWindow(MultiWindowTextGUI gui, Messenger esql)
+	{
+	    final BasicWindow contactsWindow = new BasicWindow();
+	    Panel contactsPanel = new Panel();
+	    
+	    
+	    contactsWindow.setComponent(contactsPanel);
+	    gui.addWindowAndWait(contactsWindow);
+	    return contactsWindow;
+	}
 
     //haha
     public Window createCreateChatWindow(MultiWindowTextGUI gui, Messenger esql)
@@ -257,7 +284,20 @@ public class PanelFactory
 	{
 	    BasicWindow userWindow = new BasicWindow();	    
 	    Panel userPanel = new Panel();
-	    userWindow.setComponent(userPanel);
+
+	    ComboBox<String> comboBox = new ComboBox<String>();
+	    TextBox friendName = new TextBox();
+
+	    userPanel.addComponent(friendName);
+	    comboBox.addItem("Friends");
+	    comboBox.addItem("Blocked");
+	    userPanel.addComponent(comboBox);
+	    userPanel.addComponent(new Button("Add User"));
+	    userPanel.addComponent(new Button("Cancel"));
+
+	    userWindow.setComponent(userPanel.withBorder(Borders.doubleLine("Add A Contact")));
+	    
+	    gui.addWindowAndWait(userWindow);
 	    return userWindow;
 	}
 
