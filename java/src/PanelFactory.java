@@ -158,68 +158,90 @@ public class PanelFactory
 		return registerWindow;
 	}
 
-	//all the messaging stuff should be here
-	//chat lists, etc
-    public Window createUserWindow(MultiWindowTextGUI gui, Messenger esql)
+//all the messaging stuff should be here
+//chat lists, etc
+    public Window createUserWindow(MultiWindowTextGUI gui, Messenger esql) {
+	final BasicWindow userWindow = new BasicWindow();
+	//userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
+	userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
+	Panel userPanel = new Panel();
+	userPanel.setLayoutManager(new LinearLayout());
+	TerminalSize size = new TerminalSize(20, 10);
+	ActionListBox actionListBox = new ActionListBox(size);
+	//DO A SQL QUERY HERE SO THAT WE CAN GET LIST OF CHATS
+	try
 	{
-
-
-		final BasicWindow userWindow = new BasicWindow();
-		//userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
-		userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
-		Panel userPanel = new Panel();
-		userPanel.setLayoutManager(new LinearLayout());
-		TerminalSize size = new TerminalSize(20, 10);
-		ActionListBox actionListBox = new ActionListBox(size);
-		//DO A SQL QUERY HERE SO THAT WE CAN GET LIST OF CHATS
-		try
-		{
-		    String query = String.format("SELECT chat_id FROM CHAT_LIST WEHRE member = '%s'", Messenger._currentUser);
-		    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
-		    for(int i = 0; i < ret.size(); i++)
+	    String query = String.format("SELECT chat_id FROM CHAT_LIST WEHRE member = '%s'", Messenger._currentUser);
+	    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+	    for(int i = 0; i < ret.size(); i++)
+	    {
+		actionListBox.addItem("Test", new Runnable()
 		    {
-			actionListBox.addItem("Test", new Runnable()
+			public void run()
 			    {
-				public void run()
-				    {
-				    }
-			    });
-		    }
-		}
-		catch(Exception e)
-		{
-		}
-		
-
-		Panel chatPanel = new Panel();
-		chatPanel.addComponent(actionListBox);
-		userPanel.addComponent(chatPanel.withBorder(Borders.singleLine("List of chats you're in")));
-		userPanel.addComponent(new Button("Add a user to a Contacts List"));
-		userPanel.addComponent(new Button("Manage Contacts"));
-		userPanel.addComponent(new Button("Create Chat"));
-
-		userPanel.addComponent(new Button(
-					   "Logout", new Runnable()
-					       {
-						   public void run()
-						       {
-							   userWindow.close();
-						       }
-					       }));
-		
-		userWindow.setComponent(userPanel.withBorder(Borders.doubleLine(Messenger._currentUser)));
-		gui.addWindowAndWait(userWindow);
-		return userWindow;
+			    }
+		    });
+	    }
 	}
+	catch(Exception e)
+	{
+	}
+		
+
+	Panel chatPanel = new Panel();
+	chatPanel.addComponent(actionListBox);
+	userPanel.addComponent(chatPanel.withBorder(Borders.singleLine("List of chats you're in")));
+	userPanel.addComponent(new Button("Add a user to a Contacts List"));
+	userPanel.addComponent(new Button("Manage Contacts"));
+	userPanel.addComponent(new Button("Create Chat"));
+
+	userPanel.addComponent(new Button(
+				   "Logout", new Runnable()
+				       {
+					   public void run()
+					       {
+						   userWindow.close();
+					       }
+				       }));
+		
+	userWindow.setComponent(userPanel.withBorder(Borders.doubleLine(Messenger._currentUser)));
+	gui.addWindowAndWait(userWindow);
+	return userWindow;
+    }
 
 
 
     //haha
     public Window createCreateChatWindow(MultiWindowTextGUI gui, Messenger esql)
 	{
-		BasicWindow userWindow = new BasicWindow();	    
+		BasicWindow chatWindow = new BasicWindow();	    
 		//use this to create a chat !
-		return userWindow;
+		//let users add people to chat channel
+		Panel chatPanel = new Panel();
+		
+		Button createButton = new Button
+		    ("Create", new Runnable()
+			{
+			    public void run()
+				{
+				    //create with the initialized users list
+				    
+				    
+				}
+			});
+		TextBox friends = new TextBox();
+		chatPanel.addComponent(friends.withBorder(Borders.singleLine("Add Friends")));
+		chatPanel.addComponent(createButton);
+		chatWindow.setComponent(chatPanel);
+		return chatWindow;
+	}
+
+    public Window createAddUsersWindow(MultiWindowTextGUI gui, Messenger esql)
+	{
+	    BasicWindow userWindow = new BasicWindow();	    
+	    Panel userPanel = new Panel();
+	    userWindow.setComponent(userPanel);
+	    return userWindow;
 	}
 
 }//end PanelFactory
