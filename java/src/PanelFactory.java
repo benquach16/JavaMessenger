@@ -171,7 +171,8 @@ public class PanelFactory
 	//DO A SQL QUERY HERE SO THAT WE CAN GET LIST OF CHATS
 	try
 	{
-	    String query = String.format("SELECT chat_id FROM CHAT_LIST WEHRE member = '%s'", Messenger._currentUser);
+
+	    String query = String.format("SELECT * FROM CHAT_LIST WHERE member='%s';", Messenger._currentUser);
 	    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 	    for(int i = 0; i < ret.size(); i++)
 	    {
@@ -185,6 +186,9 @@ public class PanelFactory
 	}
 	catch(Exception e)
 	{
+				     Thread t = Thread.currentThread();
+				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
+				     createMessagePopup(gui, e.getMessage());
 	}
 		
 
@@ -249,7 +253,7 @@ public class PanelFactory
 	}
 
     //haha
-    public Window createCreateChatWindow(MultiWindowTextGUI gui, Messenger esql)
+    public Window createCreateChatWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 		final BasicWindow chatWindow = new BasicWindow();	    
 		//use this to create a chat !
@@ -262,8 +266,21 @@ public class PanelFactory
 			    public void run()
 				{
 				    //create with the initialized users list
-				    
-				    
+				    //this requires two queries - one to create the chat and the other to add all users to the chat users table
+				    try
+				    {
+					//this is just a test!!!
+					String query1 = String.format("INSERT INTO CHAT VALUES (1, 'PRIVATE', '%s');", Messenger._currentUser);
+					String query2 = String.format("INSERT INTO CHAT_LIST VALUES (1, '%s');", Messenger._currentUser);				    
+					esql.executeUpdate(query1);						 
+					esql.executeUpdate(query2);
+				    }
+				    catch(Exception e)
+				    {
+				     Thread t = Thread.currentThread();
+				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
+				     createMessagePopup(gui, e.getMessage());
+				    }
 				}
 			});
 		TextBox friends = new TextBox();
