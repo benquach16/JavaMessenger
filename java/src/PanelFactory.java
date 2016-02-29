@@ -160,7 +160,7 @@ public class PanelFactory
 
 //all the messaging stuff should be here
 //chat lists, etc
-    public Window createUserWindow(MultiWindowTextGUI gui, Messenger esql) {
+    public Window createUserWindow(final MultiWindowTextGUI gui, final Messenger esql) {
 	final BasicWindow userWindow = new BasicWindow();
 	//userWindow.setHints(Arrays.asList(Window.Hint.EXPANDED));
 	userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
@@ -193,7 +193,14 @@ public class PanelFactory
 	userPanel.addComponent(chatPanel.withBorder(Borders.singleLine("List of chats you're in")));
 	userPanel.addComponent(new Button("Add a user to a Contacts List"));
 	userPanel.addComponent(new Button("Manage Contacts"));
-	userPanel.addComponent(new Button("Create Chat"));
+	userPanel.addComponent(new Button(
+				   "Create Chat", new Runnable()
+				       {
+					   public void run()
+					       {
+						   createCreateChatWindow(gui, esql);
+					       }
+				       }));
 
 	userPanel.addComponent(new Button(
 				   "Logout", new Runnable()
@@ -214,7 +221,7 @@ public class PanelFactory
     //haha
     public Window createCreateChatWindow(MultiWindowTextGUI gui, Messenger esql)
 	{
-		BasicWindow chatWindow = new BasicWindow();	    
+		final BasicWindow chatWindow = new BasicWindow();	    
 		//use this to create a chat !
 		//let users add people to chat channel
 		Panel chatPanel = new Panel();
@@ -232,7 +239,17 @@ public class PanelFactory
 		TextBox friends = new TextBox();
 		chatPanel.addComponent(friends.withBorder(Borders.singleLine("Add Friends")));
 		chatPanel.addComponent(createButton);
-		chatWindow.setComponent(chatPanel);
+		chatPanel.addComponent(new Button(
+					   "Cancel",
+					   new Runnable()
+					   {
+					       public void run()
+						   {
+						       chatWindow.close();
+						   }
+					   }));
+		chatWindow.setComponent(chatPanel.withBorder(Borders.doubleLine("Create a chat")));
+		gui.addWindowAndWait(chatWindow);
 		return chatWindow;
 	}
 
