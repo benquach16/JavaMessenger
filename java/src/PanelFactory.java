@@ -211,13 +211,14 @@ public class PanelFactory
 					   }
 				   }));
 	userPanel.addComponent(new Button(
-				   "Create Chat", new Runnable()
-				       {
-					   public void run()
-					       {
-						   createCreateChatWindow(gui, esql);
-					       }
-				       }));
+				   "Create Chat", 
+				   new Runnable()
+				   {
+				       public void run()
+					   {
+					       createCreateChatWindow(gui, esql);
+					   }
+				   }));
 
 	userPanel.addComponent(new Button(
 				   "Logout", new Runnable()
@@ -238,7 +239,9 @@ public class PanelFactory
 	{
 	    final BasicWindow contactsWindow = new BasicWindow();
 	    Panel contactsPanel = new Panel();
-	    
+	    //show both friends and blocked contacts here
+	    ActionListBox friendListBox = new ActionListBox();
+	    ActionListBox blockListBox = new ActionListBox();
 	    
 	    contactsWindow.setComponent(contactsPanel);
 	    gui.addWindowAndWait(contactsWindow);
