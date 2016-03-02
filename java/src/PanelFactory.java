@@ -171,7 +171,6 @@ public class PanelFactory
 	//DO A SQL QUERY HERE SO THAT WE CAN GET LIST OF CHATS
 	try
 	{
-
 	    String query = String.format("SELECT * FROM CHAT_LIST WHERE member='%s';", Messenger._currentUser);
 	    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 	    for(int i = 0; i < ret.size(); i++)
@@ -180,15 +179,17 @@ public class PanelFactory
 		    {
 			public void run()
 			    {
+				//open a chat window
+				createChatWindow(gui, esql);
 			    }
 		    });
 	    }
 	}
 	catch(Exception e)
 	{
-				     Thread t = Thread.currentThread();
-				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
-				     createMessagePopup(gui, e.getMessage());
+	    Thread t = Thread.currentThread();
+	    t.getUncaughtExceptionHandler().uncaughtException(t, e);
+	    createMessagePopup(gui, e.getMessage());
 	}
 		
 
@@ -205,15 +206,16 @@ public class PanelFactory
 			    createAddUsersWindow(gui, esql);
 			}
 		}));
-	userPanel.addComponent(new Button(
-				   "Manage Contacts",
-				   new Runnable()
-				   {
-				       public void run()
-					   {
-					       createShowContactsWindow(gui,esql);
-					   }
-				   }));
+	userPanel.addComponent(
+	    new Button(
+		"Manage Contacts",
+		new Runnable()
+		{
+		    public void run()
+			{
+			    createShowContactsWindow(gui,esql);
+			}
+		}));
 	userPanel.addComponent(new Button(
 				   "Create Chat", 
 				   new Runnable()
@@ -286,15 +288,16 @@ public class PanelFactory
 		TextBox friends = new TextBox();
 		chatPanel.addComponent(friends.withBorder(Borders.singleLine("Add Friends")));
 		chatPanel.addComponent(createButton);
-		chatPanel.addComponent(new Button(
-					   "Cancel",
-					   new Runnable()
-					   {
-					       public void run()
-						   {
-						       chatWindow.close();
-						   }
-					   }));
+		chatPanel.addComponent(
+		    new Button(
+			"Cancel",
+			new Runnable()
+			{
+			    public void run()
+				{
+				    chatWindow.close();
+				}
+			}));
 		chatWindow.setComponent(chatPanel.withBorder(Borders.doubleLine("Create a chat")));
 		gui.addWindowAndWait(chatWindow);
 		return chatWindow;
@@ -312,8 +315,28 @@ public class PanelFactory
 	    comboBox.addItem("Friends");
 	    comboBox.addItem("Blocked");
 	    userPanel.addComponent(comboBox);
-	    userPanel.addComponent(new Button("Add User"));
-	    userPanel.addComponent(new Button("Cancel"));
+	    userPanel.addComponent(
+		new Button("Add User",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       //do a sql query here to find the friend
+				       //then we can add them to the table contacts_list
+				       String usern = friendName.getText();
+				       
+				       
+				   }
+			   }));
+	    userPanel.addComponent(
+		new Button("Cancel",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       userWindow.close();
+				   }
+			   }));
 
 	    userWindow.setComponent(userPanel.withBorder(Borders.doubleLine("Add A Contact")));
 	    
