@@ -125,6 +125,14 @@ public class PanelFactory
 				     Thread t = Thread.currentThread();
 				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
 				     createMessagePopup(gui, e.getMessage());
+				     try
+				     {
+					 gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+				     }
+				     catch(Exception ex)
+				     {
+					 createMessagePopup(gui, "could not refresh");
+				     }
 				     //createMessagePopup(gui, "Failed to create user");
 				 }
 						
@@ -279,9 +287,18 @@ public class PanelFactory
 				    }
 				    catch(Exception e)
 				    {
+
 				     Thread t = Thread.currentThread();
 				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
 				     createMessagePopup(gui, e.getMessage());
+				     try
+				     {
+					 gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+				     }
+				     catch(Exception ex)
+				     {
+					 createMessagePopup(gui, "could not refresh");
+				     }
 				    }
 				}
 			});
