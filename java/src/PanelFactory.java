@@ -305,11 +305,11 @@ public class PanelFactory
 
     public Window createAddUsersWindow(MultiWindowTextGUI gui, Messenger esql)
 	{
-	    BasicWindow userWindow = new BasicWindow();	    
+	    final BasicWindow userWindow = new BasicWindow();	    
 	    Panel userPanel = new Panel();
 
 	    ComboBox<String> comboBox = new ComboBox<String>();
-	    TextBox friendName = new TextBox();
+	    final TextBox friendName = new TextBox();
 
 	    userPanel.addComponent(friendName);
 	    comboBox.addItem("Friends");
