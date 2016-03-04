@@ -68,6 +68,11 @@ public class PanelFactory
 	public Window createChatWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 	    final BasicWindow window = new BasicWindow();
+	    Panel panel = new Panel();
+	    ActionListBox usersInChat = new ActionListBox();
+	    panel.addComponent(new Button("Quit"));
+	    window.setComponent(panel.withBorder(Borders.doubleLine("Chat")));
+
 	    gui.addWindowAndWait(window);
 	    return window;
 	}
