@@ -232,24 +232,26 @@ public class PanelFactory
 			    createShowContactsWindow(gui,esql);
 			}
 		}));
-	userPanel.addComponent(new Button(
-				   "Create Chat", 
-				   new Runnable()
-				   {
-				       public void run()
-					   {
-					       createCreateChatWindow(gui, esql);
-					   }
-~				   }));
+	userPanel.addComponent(
+	    new Button(
+		"Create Chat", 
+		new Runnable()
+		{
+		    public void run()
+			{
+			    createCreateChatWindow(gui, esql);
+			}
+		}));
 
-	userPanel.addComponent(new Button(
-				   "Logout", new Runnable()
-				       {
-					   public void run()
-					       {
-						   userWindow.close();
-					       }
-				       }));
+	userPanel.addComponent(
+	    new Button(
+		"Logout", new Runnable()
+		    {
+			public void run()
+			    {
+				userWindow.close();
+			    }
+		    }));
 		
 	userWindow.setComponent(userPanel.withBorder(Borders.doubleLine(Messenger._currentUser)));
 	gui.addWindowAndWait(userWindow);
@@ -257,7 +259,7 @@ public class PanelFactory
     }
 
 
-    public Window createShowContactsWindow(MultiWindowTextGUI gui, Messenger esql)
+    public Window createShowContactsWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 	    final BasicWindow contactsWindow = new BasicWindow();
 	    Panel contactsPanel = new Panel();
@@ -266,7 +268,37 @@ public class PanelFactory
 	    ActionListBox blockListBox = new ActionListBox();
 	    contactsPanel.setLayoutManager(new GridLayout(2));
 	    //two queries here - find friends in blocked list and friends list
-	    
+	    try
+	    {
+		String query = String.format("SELECT ULC.list_member FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND U.block_list = UL.list_id;", Messenger._currentUser);
+		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+		for(int i = 0; i < ret.size(); i++)
+		{
+		    blockListBox.addItem(ret.get(i).get(0), new Runnable()
+		    {
+			public void run()
+			    {
+				//open a chat window
+				createChatWindow(gui, esql);
+			    }
+		    });
+		}
+	    }
+	    catch (Exception e)
+	    {
+		String str = e.getMessage();
+		Thread t = Thread.currentThread();
+		t.getUncaughtExceptionHandler().uncaughtException(t, e);
+		createMessagePopup(gui, e.getMessage());					  
+		try
+		{
+		    gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+		}
+		catch(Exception ex)
+		{
+		    createMessagePopup(gui, "could not refresh");
+		}		
+	    }
 	    contactsPanel.addComponent(friendListBox.withBorder(Borders.singleLine("Friends List")));
 	    contactsPanel.addComponent(blockListBox.withBorder(Borders.singleLine("Blocked List")));
 	    contactsPanel.addComponent(
@@ -341,7 +373,7 @@ public class PanelFactory
 		return chatWindow;
 	}
 
-    public Window createAddUsersWindow(MultiWindowTextGUI gui, Messenger esql)
+    public Window createAddUsersWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 	    final BasicWindow userWindow = new BasicWindow();	    
 	    Panel userPanel = new Panel();
@@ -366,14 +398,14 @@ public class PanelFactory
 					   
 					   String usern = friendName.getText();
 				       
-					   String selectQuery = String.format("SELECT U.login FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND USR.block_list = US.list_id AND ULC.list_member = '%s';", Messenger._currentUser, usern);
+					   String selectQuery = String.format("SELECT ULC.list_member FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND U.block_list = UL.list_id AND ULC.list_member = '%s';", Messenger._currentUser, usern);
 
 					   List<List<String>> ret = esql.executeQueryAndReturnResult(selectQuery);
 					   if(ret.size() == 0)
 					   {
 					       //no return so we can insert since he is not ni the block list
-					       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR, WHERE USR.login='%s' ), 'PersonToAdd');", Messenger._currentUser);	
-					       esql.executeQueryAndReturnResult(insertQuery);
+					       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
+					       esql.executeQuery(insertQuery);
 					       //should work now
 					   }
 					   else
@@ -388,6 +420,14 @@ public class PanelFactory
 					   Thread t = Thread.currentThread();
 					   t.getUncaughtExceptionHandler().uncaughtException(t, e);
 					   createMessagePopup(gui, e.getMessage());					  
+					   try
+					   {
+					       gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+					   }
+					   catch(Exception ex)
+					   {
+					       createMessagePopup(gui, "could not refresh");
+					   }
 				       }
 				   }
 			   }));
