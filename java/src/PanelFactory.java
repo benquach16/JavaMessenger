@@ -111,16 +111,17 @@ public class PanelFactory
 				     final BasicWindow successWindow = new BasicWindow();
 				     final Panel successPanel = new Panel();
 				     successPanel.addComponent(new Label("Successfully registered user!"));
-				     successPanel.addComponent(new Button
-							       ("OK",
-								new Runnable()
-								{
-								    public void run()
-									{
-									    successWindow.close();
-									    registerWindow.close();
-									}
-								}));
+				     successPanel.addComponent(
+					 new Button
+					 ("OK",
+					  new Runnable()
+					  {
+					      public void run()
+						  {
+						      successWindow.close();
+						      registerWindow.close();
+						  }
+					  }));
 				     successWindow.setComponent(successPanel);
 				     gui.addWindowAndWait(successWindow);
 						 
@@ -239,7 +240,7 @@ public class PanelFactory
 					   {
 					       createCreateChatWindow(gui, esql);
 					   }
-				   }));
+~				   }));
 
 	userPanel.addComponent(new Button(
 				   "Logout", new Runnable()
@@ -264,6 +265,8 @@ public class PanelFactory
 	    ActionListBox friendListBox = new ActionListBox();
 	    ActionListBox blockListBox = new ActionListBox();
 	    contactsPanel.setLayoutManager(new GridLayout(2));
+	    //two queries here - find friends in blocked list and friends list
+	    
 	    contactsPanel.addComponent(friendListBox.withBorder(Borders.singleLine("Friends List")));
 	    contactsPanel.addComponent(blockListBox.withBorder(Borders.singleLine("Blocked List")));
 	    contactsPanel.addComponent(
@@ -358,9 +361,34 @@ public class PanelFactory
 				   {
 				       //do a sql query here to find the friend
 				       //then we can add them to the table contacts_list
-				       String usern = friendName.getText();
+				       try
+				       {
+					   
+					   String usern = friendName.getText();
 				       
-				       
+					   String selectQuery = String.format("SELECT U.login FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND USR.block_list = US.list_id AND ULC.list_member = '%s';", Messenger._currentUser, usern);
+
+					   List<List<String>> ret = esql.executeQueryAndReturnResult(selectQuery);
+					   if(ret.size() == 0)
+					   {
+					       //no return so we can insert since he is not ni the block list
+					       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR, WHERE USR.login='%s' ), 'PersonToAdd');", Messenger._currentUser);	
+					       esql.executeQueryAndReturnResult(insertQuery);
+					       //should work now
+					   }
+					   else
+					   {
+					       createMessagePopup(gui, "Already in contacts list");
+					   }
+
+				       }
+				       catch(Exception e)
+				       {
+					   String str = e.getMessage();
+					   Thread t = Thread.currentThread();
+					   t.getUncaughtExceptionHandler().uncaughtException(t, e);
+					   createMessagePopup(gui, e.getMessage());					  
+				       }
 				   }
 			   }));
 	    userPanel.addComponent(
