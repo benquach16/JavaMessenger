@@ -48,15 +48,16 @@ public class PanelFactory
 		final BasicWindow window = new BasicWindow();
 		Panel panel = new Panel();
 		panel.addComponent(new Label(str));
-		panel.addComponent(new Button("OK",
-					      new Runnable()
-					      {
-						  //close button
-						  public void run()
-						      {
-							  window.close();
-						      }
-					      }));
+		panel.addComponent(
+		    new Button("OK",
+			       new Runnable()
+			       {
+				   //close button
+				   public void run()
+				       {
+					   window.close();
+				       }
+			       }));
 		
 		window.setComponent(panel);
 		gui.addWindowAndWait(window);
@@ -67,6 +68,7 @@ public class PanelFactory
 	public Window createChatWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 	    final BasicWindow window = new BasicWindow();
+	    gui.addWindowAndWait(window);
 	    return window;
 	}
 
@@ -199,7 +201,7 @@ public class PanelFactory
 	    t.getUncaughtExceptionHandler().uncaughtException(t, e);
 	    createMessagePopup(gui, e.getMessage());
 	}
-		
+	;		
 
 	Panel chatPanel = new Panel();
 	chatPanel.addComponent(actionListBox);
@@ -256,8 +258,19 @@ public class PanelFactory
 	    //show both friends and blocked contacts here
 	    ActionListBox friendListBox = new ActionListBox();
 	    ActionListBox blockListBox = new ActionListBox();
-	    
-	    contactsWindow.setComponent(contactsPanel);
+	    contactsPanel.setLayoutManager(new GridLayout(2));
+	    contactsPanel.addComponent(friendListBox.withBorder(Borders.singleLine("Friends List")));
+	    contactsPanel.addComponent(blockListBox.withBorder(Borders.singleLine("Blocked List")));
+	    contactsPanel.addComponent(
+		new Button("Cancel",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       contactsWindow.close();
+				   }
+			   }));
+	    contactsWindow.setComponent(contactsPanel.withBorder(Borders.doubleLine("Contacts")));
 	    gui.addWindowAndWait(contactsWindow);
 	    return contactsWindow;
 	}
