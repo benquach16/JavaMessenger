@@ -69,8 +69,38 @@ public class PanelFactory
 	{
 	    final BasicWindow window = new BasicWindow();
 	    Panel panel = new Panel();
+
+	    TextBox inputString = new TextBox();
 	    ActionListBox usersInChat = new ActionListBox();
-	    panel.addComponent(new Button("Quit"));
+	    panel.addComponent(usersInChat);
+	    
+	    try
+	    {
+		String query = "";
+		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+		for(int i = 0; i < ret.size(); i++)
+		{
+		    Panel nPanel = new Panel();
+		    nPanel.addComponent(new Label("fuck"));
+		    panel.addComponent(nPanel);
+		}
+	    }
+	    catch(Exception e)
+	    {
+		
+	    }
+
+	    panel.addComponent(inputString);
+	    panel.addComponent(
+		new Button("Quit",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       window.close();
+				   }
+			   }));
+	    
 	    window.setComponent(panel.withBorder(Borders.doubleLine("Chat")));
 
 	    gui.addWindowAndWait(window);
