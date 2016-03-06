@@ -270,11 +270,24 @@ public class PanelFactory
 	    //two queries here - find friends in blocked list and friends list
 	    try
 	    {
-		String query = String.format("SELECT ULC.list_member FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND U.block_list = UL.list_id;", Messenger._currentUser);
+		String query = String.format("SELECT ULC.list_member FROM USR U, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND U.block_list = ULC.list_id;", Messenger._currentUser);
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 		for(int i = 0; i < ret.size(); i++)
 		{
 		    blockListBox.addItem(ret.get(i).get(0), new Runnable()
+		    {
+			public void run()
+			    {
+				//open a chat window
+				createChatWindow(gui, esql);
+			    }
+		    });
+		}
+		String query2 = String.format("SELECT ULC.list_member FROM USR U, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND U.contact_list = ULC.list_id;", Messenger._currentUser);
+		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
+		for(int i = 0; i < ret2.size(); i++)
+		{
+		    friendListBox.addItem(ret2.get(i).get(0), new Runnable()
 		    {
 			public void run()
 			    {
@@ -333,8 +346,8 @@ public class PanelFactory
 				    try
 				    {
 					//this is just a test!!!
-					String query1 = String.format("INSERT INTO CHAT VALUES (1, 'PRIVATE', '%s');", Messenger._currentUser);
-					String query2 = String.format("INSERT INTO CHAT_LIST VALUES (1, '%s');", Messenger._currentUser);				    
+					String query1 = String.format("INSERT INTO CHAT VALUES (DEFAULT, 'PRIVATE', '%s');", Messenger._currentUser);
+					String query2 = String.format("INSERT INTO CHAT_LIST VALUES ((SELECT chat_id from CHAT ORDER BY chat_id DESC LIMIT 1), '%s');", Messenger._currentUser);				    
 					esql.executeUpdate(query1);						 
 					esql.executeUpdate(query2);
 				    }
@@ -378,7 +391,7 @@ public class PanelFactory
 	    final BasicWindow userWindow = new BasicWindow();	    
 	    Panel userPanel = new Panel();
 
-	    ComboBox<String> comboBox = new ComboBox<String>();
+	    final ComboBox<String> comboBox = new ComboBox<String>();
 	    final TextBox friendName = new TextBox();
 
 	    userPanel.addComponent(friendName);
@@ -398,21 +411,20 @@ public class PanelFactory
 					   
 					   String usern = friendName.getText();
 				       
-					   String selectQuery = String.format("SELECT ULC.list_member FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND U.block_list = UL.list_id AND ULC.list_member = '%s';", Messenger._currentUser, usern);
-
-					   List<List<String>> ret = esql.executeQueryAndReturnResult(selectQuery);
-					   if(ret.size() == 0)
-					   {
-					       //no return so we can insert since he is not ni the block list
-					       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
-					       esql.executeQuery(insertQuery);
-					       //should work now
-					   }
-					   else
-					   {
-					       createMessagePopup(gui, "Already in contacts list");
-					   }
-
+					   //String selectQuery = String.format("SELECT ULC.list_member FROM USR U, USER_LIST UL, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND UL.list_id = ULC.list_id AND U.block_list = UL.list_id AND ULC.list_member = '%s';", Messenger._currentUser, usern);
+					   //List<List<String>> ret = esql.executeQueryAndReturnResult(selectQuery);
+						   if (comboBox.getSelectedIndex() == 0 ) {
+							       //no return so we can insert since he is not ni the block list
+							       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
+							       esql.executeQuery(insertQuery);
+							       //should work now
+						   }
+						   else {
+						   		   //no return so we can insert since he is not ni the block list
+							       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT block_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
+							       esql.executeQuery(insertQuery);
+							       //should work now
+						   }
 				       }
 				       catch(Exception e)
 				       {
