@@ -182,16 +182,17 @@ public class PanelFactory
 	userWindow.setHints(Arrays.asList(Window.Hint.CENTERED));
 	Panel userPanel = new Panel();
 	userPanel.setLayoutManager(new LinearLayout());
-	TerminalSize size = new TerminalSize(20, 10);
+	TerminalSize size = new TerminalSize(30, 10);
 	ActionListBox actionListBox = new ActionListBox(size);
 	//DO A SQL QUERY HERE SO THAT WE CAN GET LIST OF CHATS
 	try
 	{
-	    String query = String.format("SELECT * FROM CHAT_LIST WHERE member='%s';", Messenger._currentUser);
+	    //String query = String.format("SELECT * FROM CHAT_LIST WHERE member='%s';", Messenger._currentUser);
+	    String query = String.format("SELECT C.* FROM CHAT C, CHAT_LIST CL WHERE C.chat_id = CL.chat_id AND CL.member='%s';", Messenger._currentUser);
 	    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 	    for(int i = 0; i < ret.size(); i++)
 	    {
-		actionListBox.addItem("Test", new Runnable()
+		actionListBox.addItem("Chat " + ret.get(i).get(0) + " Init Sender: " + ret.get(i).get(2), new Runnable()
 		    {
 			public void run()
 			    {
@@ -335,7 +336,7 @@ public class PanelFactory
 		//use this to create a chat !
 		//let users add people to chat channel
 		Panel chatPanel = new Panel();
-		
+		final TextBox friends = new TextBox();
 		Button createButton = new Button
 		    ("Create", new Runnable()
 			{
@@ -345,11 +346,18 @@ public class PanelFactory
 				    //this requires two queries - one to create the chat and the other to add all users to the chat users table
 				    try
 				    {
-					//this is just a test!!!
-					String query1 = String.format("INSERT INTO CHAT VALUES (DEFAULT, 'PRIVATE', '%s');", Messenger._currentUser);
-					String query2 = String.format("INSERT INTO CHAT_LIST VALUES ((SELECT chat_id from CHAT ORDER BY chat_id DESC LIMIT 1), '%s');", Messenger._currentUser);				    
-					esql.executeUpdate(query1);						 
-					esql.executeUpdate(query2);
+						//this is just a test!!!
+						String query1 = String.format("INSERT INTO CHAT VALUES (DEFAULT, 'PRIVATE', '%s');", Messenger._currentUser);
+						String query2 = String.format("INSERT INTO CHAT_LIST VALUES ((SELECT chat_id from CHAT ORDER BY chat_id DESC LIMIT 1), '%s');", Messenger._currentUser);				    
+						esql.executeUpdate(query1);						 
+						esql.executeUpdate(query2);
+						
+						String query3;
+						String[] parseFriends = friends.getText().split(",");
+						for (int i = 0; i < parseFriends.length; ++i) {
+							query3 = String.format("INSERT INTO CHAT_LIST VALUES ((SELECT chat_id from CHAT ORDER BY chat_id DESC LIMIT 1), '%s');", parseFriends[i]);
+							esql.executeUpdate(query3);
+						}
 				    }
 				    catch(Exception e)
 				    {
@@ -368,7 +376,6 @@ public class PanelFactory
 				    }
 				}
 			});
-		TextBox friends = new TextBox();
 		chatPanel.addComponent(friends.withBorder(Borders.singleLine("Add Friends")));
 		chatPanel.addComponent(createButton);
 		chatPanel.addComponent(
