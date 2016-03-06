@@ -70,7 +70,7 @@ public class PanelFactory
 	    final BasicWindow window = new BasicWindow();
 	    Panel panel = new Panel();
 
-	    TextBox inputString = new TextBox();
+	    final TextBox inputString = new TextBox();
 	    ActionListBox usersInChat = new ActionListBox();
 	    panel.addComponent(usersInChat);
 	    
@@ -91,6 +91,15 @@ public class PanelFactory
 	    }
 
 	    panel.addComponent(inputString);
+	    Button enter = new Button("Send!",
+				      new Runnable()
+				      {
+					  public void run()
+					      {
+						  //do stuff here
+						  String textToSend = inputString.getText();
+					      }
+				      });
 	    panel.addComponent(
 		new Button("Quit",
 			   new Runnable()
