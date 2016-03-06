@@ -31,7 +31,8 @@ import com.googlecode.lanterna.TerminalPosition;
 
 public class PanelFactory
 {
-
+	public static String _currentChatId;
+	
 	public PanelFactory()
 	{
 		
@@ -76,12 +77,12 @@ public class PanelFactory
 	    
 	    try
 	    {
-		String query = "";
+		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT 10;", _currentChatId);
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
-		for(int i = 0; i < ret.size(); i++)
+		for(int i = ret.size() - 1; i >= 0; i--)
 		{
 		    Panel nPanel = new Panel();
-		    nPanel.addComponent(new Label("fuck"));
+		    nPanel.addComponent(new Label(ret.get(i).get(1).trim() + " by " + ret.get(i).get(3)));
 		    panel.addComponent(nPanel);
 		}
 	    }
@@ -97,9 +98,17 @@ public class PanelFactory
 					  public void run()
 					      {
 						  //do stuff here
-						  String textToSend = inputString.getText();
+							  try{
+								  String textToSend = inputString.getText();
+								  String query = String.format("INSERT INTO MESSAGE VALUES (DEFAULT, '%s', now(), '%s', '%s');", textToSend, Messenger._currentUser, _currentChatId);
+								  // catch for msg length
+								  esql.executeQuery(query);
+							  }
+							  catch(Exception e) {
+							  }
 					      }
 				      });
+		panel.addComponent(enter);
 	    panel.addComponent(
 		new Button("Quit",
 			   new Runnable()
@@ -110,7 +119,7 @@ public class PanelFactory
 				   }
 			   }));
 	    
-	    window.setComponent(panel.withBorder(Borders.doubleLine("Chat")));
+	    window.setComponent(panel.withBorder(Borders.doubleLine(_currentChatId)));
 
 	    gui.addWindowAndWait(window);
 	    return window;
@@ -228,14 +237,17 @@ public class PanelFactory
 	{
 	    //String query = String.format("SELECT * FROM CHAT_LIST WHERE member='%s';", Messenger._currentUser);
 	    String query = String.format("SELECT C.* FROM CHAT C, CHAT_LIST CL WHERE C.chat_id = CL.chat_id AND CL.member='%s';", Messenger._currentUser);
-	    List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+	    final List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 	    for(int i = 0; i < ret.size(); i++)
 	    {
+	    	final int k = i;
 		actionListBox.addItem("Chat " + ret.get(i).get(0) + " Init Sender: " + ret.get(i).get(2), new Runnable()
 		    {
 			public void run()
 			    {
 				//open a chat window
+				final int jesus = k;
+				_currentChatId = ret.get(jesus).get(0);
 				createChatWindow(gui, esql);
 			    }
 		    });
@@ -311,28 +323,42 @@ public class PanelFactory
 	    try
 	    {
 		String query = String.format("SELECT ULC.list_member FROM USR U, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND U.block_list = ULC.list_id;", Messenger._currentUser);
-		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+		final List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 		for(int i = 0; i < ret.size(); i++)
 		{
+			final int k = i;
 		    blockListBox.addItem(ret.get(i).get(0), new Runnable()
 		    {
 			public void run()
-			    {
-				//open a chat window
-				createChatWindow(gui, esql);
+			    {   //createMessagePopup(gui, ret.get(k).get(0));
+			    	try{
+			    		
+				    	   
+				    	String query420 = String.format("DELETE FROM USER_LIST_CONTAINS ULC USING USR U WHERE ULC.list_member='%s' AND U.block_list=ULC.list_id AND U.login='%s';", ret.get(k).get(0), Messenger._currentUser);
+				    	esql.executeQuery(query420);
+			    	}
+			    	catch(Exception e) {
+
+			    	}
 			    }
 		    });
 		}
 		String query2 = String.format("SELECT ULC.list_member FROM USR U, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND U.contact_list = ULC.list_id;", Messenger._currentUser);
-		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
+		final List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
 		for(int i = 0; i < ret2.size(); i++)
 		{
+			final int j = i;
 		    friendListBox.addItem(ret2.get(i).get(0), new Runnable()
 		    {
 			public void run()
 			    {
-				//open a chat window
-				createChatWindow(gui, esql);
+			    	try{ 
+				    	String query420BlazeIt = String.format("DELETE FROM USER_LIST_CONTAINS ULC USING USR U WHERE ULC.list_member='%s' AND U.contact_list=ULC.list_id AND U.login='%s';", ret2.get(j).get(0), Messenger._currentUser);
+				    	esql.executeQuery(query420BlazeIt);
+			    	}
+			    	catch(Exception e) {
+
+			    	}
 			    }
 		    });
 		}
