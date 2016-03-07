@@ -82,7 +82,24 @@ public class PanelFactory
 	    ActionListBox usersInChat = new ActionListBox();
 	    
 	    usersPanel.addComponent(usersInChat.withBorder(Borders.singleLine("Users")));
-	    usersPanel.addComponent(new Button("Add users"));
+	    final TextBox friends = new TextBox();
+	    usersPanel.addComponent(
+		new Button("Add Users",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       //parse friends to add
+				       String query3;
+				       String[] parseFriends = friends.getText().split(",");
+				       for (int i = 0; i < parseFriends.length; ++i) {
+					   query3 = String.format("INSERT INTO CHAT_LIST VALUES ('%s', '%s');", _currentChatId, parseFriends[i]);
+					   esql.executeUpdate(query3);
+				       }
+				   }
+			   }));
+	    
+	    usersPanel.addComponent(new Button("Delete Chat"));
 	    try
 	    {
 		//fetch only latest 10
