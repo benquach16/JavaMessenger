@@ -75,12 +75,14 @@ public class PanelFactory
 	    Panel usersPanel = new Panel();
 	    
 	    mainPanel.addComponent(usersPanel);
+
 	    Panel panel = new Panel();
 
 	    final TextBox inputString = new TextBox();
 	    ActionListBox usersInChat = new ActionListBox();
+	    
 	    usersPanel.addComponent(usersInChat.withBorder(Borders.singleLine("Users")));
-	   
+	    usersPanel.addComponent(new Button("Add users"));
 	    try
 	    {
 		//fetch only latest 10
@@ -92,7 +94,7 @@ public class PanelFactory
 		    nPanel.setLayoutManager(new GridLayout(2));
 		    nPanel.addComponent(new Label(ret.get(i).get(1).trim()));
 		    nPanel.addComponent(new Button("Edit"));
-		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3))));
+		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3).trim())));
 		}
 
 		//now fetch users in the chat
@@ -101,7 +103,7 @@ public class PanelFactory
 		for(int i = 0; i < ret2.size(); i++)
 		{
 		    usersInChat.addItem(
-			ret.get(i).get(1).trim(),
+			ret2.get(i).get(0).trim(),
 			new Runnable()
 			{
 			    public void run()
@@ -369,6 +371,8 @@ public class PanelFactory
 			public void run()
 			    {   //createMessagePopup(gui, ret.get(k).get(0));
 				//add a button here
+				
+				
 			    	try{
 			    		
 				    	   
