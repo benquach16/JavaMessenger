@@ -69,21 +69,46 @@ public class PanelFactory
 	public Window createChatWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 	    final BasicWindow window = new BasicWindow();
+	    window.setHints(Arrays.asList(Window.Hint.CENTERED));
+	    Panel mainPanel = new Panel();
+	    mainPanel.setLayoutManager(new GridLayout(2));
+	    Panel usersPanel = new Panel();
+	    
+	    mainPanel.addComponent(usersPanel);
 	    Panel panel = new Panel();
 
 	    final TextBox inputString = new TextBox();
 	    ActionListBox usersInChat = new ActionListBox();
-	    panel.addComponent(usersInChat);
-	    
+	    usersPanel.addComponent(usersInChat.withBorder(Borders.singleLine("Users")));
+	   
 	    try
 	    {
+		//fetch only latest 10
 		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT 10;", _currentChatId);
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 		for(int i = ret.size() - 1; i >= 0; i--)
 		{
 		    Panel nPanel = new Panel();
-		    nPanel.addComponent(new Label(ret.get(i).get(1).trim() + " by " + ret.get(i).get(3)));
-		    panel.addComponent(nPanel);
+		    nPanel.setLayoutManager(new GridLayout(2));
+		    nPanel.addComponent(new Label(ret.get(i).get(1).trim()));
+		    nPanel.addComponent(new Button("Edit"));
+		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3))));
+		}
+
+		//now fetch users in the chat
+		String query2 = String.format("SELECT member FROM CHAT_LIST WHERE chat_id='%s'", _currentChatId);
+		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
+		for(int i = 0; i < ret2.size(); i++)
+		{
+		    usersInChat.addItem(
+			ret.get(i).get(1).trim(),
+			new Runnable()
+			{
+			    public void run()
+				{
+				}
+			}
+			);
 		}
 	    }
 	    catch(Exception e)
@@ -98,28 +123,40 @@ public class PanelFactory
 					  public void run()
 					      {
 						  //do stuff here
-							  try{
-								  String textToSend = inputString.getText();
-								  String query = String.format("INSERT INTO MESSAGE VALUES (DEFAULT, '%s', now(), '%s', '%s');", textToSend, Messenger._currentUser, _currentChatId);
-								  // catch for msg length
-								  esql.executeQuery(query);
-							  }
-							  catch(Exception e) {
-							  }
+						  try{
+						      String textToSend = inputString.getText();
+						      String query = String.format("INSERT INTO MESSAGE VALUES (DEFAULT, '%s', now(), '%s', '%s');", textToSend, Messenger._currentUser, _currentChatId);
+						      // catch for msg length
+						      int rows = esql.executeQuery(query);
+						  }
+						  catch(Exception e) {
+						      String str = e.getMessage();
+						      Thread t = Thread.currentThread();
+						      t.getUncaughtExceptionHandler().uncaughtException(t, e);
+						      createMessagePopup(gui, e.getMessage());					  
+						      try
+						      {
+							  gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+						      }
+						      catch(Exception ex)
+						      {
+							  createMessagePopup(gui, "could not refresh");
+						      }
+						  }
 					      }
 				      });
-		panel.addComponent(enter);
-	    panel.addComponent(
-		new Button("Quit",
-			   new Runnable()
-			   {
-			       public void run()
-				   {
-				       window.close();
-				   }
-			   }));
-	    
-	    window.setComponent(panel.withBorder(Borders.doubleLine(_currentChatId)));
+
+	    panel.addComponent(enter);
+	    panel.addComponent(new Button("Quit",
+		       new Runnable()
+		       {
+			   public void run()
+			      {
+				  window.close();
+			      }
+		       }));
+	    mainPanel.addComponent(panel);
+	    window.setComponent(mainPanel.withBorder(Borders.doubleLine(_currentChatId)));
 
 	    gui.addWindowAndWait(window);
 	    return window;
@@ -327,10 +364,11 @@ public class PanelFactory
 		for(int i = 0; i < ret.size(); i++)
 		{
 			final int k = i;
-		    blockListBox.addItem(ret.get(i).get(0), new Runnable()
+			blockListBox.addItem(ret.get(i).get(0).trim(), new Runnable()
 		    {
 			public void run()
 			    {   //createMessagePopup(gui, ret.get(k).get(0));
+				//add a button here
 			    	try{
 			    		
 				    	   
@@ -348,7 +386,7 @@ public class PanelFactory
 		for(int i = 0; i < ret2.size(); i++)
 		{
 			final int j = i;
-		    friendListBox.addItem(ret2.get(i).get(0), new Runnable()
+			friendListBox.addItem(ret2.get(i).get(0).trim(), new Runnable()
 		    {
 			public void run()
 			    {
@@ -488,13 +526,13 @@ public class PanelFactory
 						   if (comboBox.getSelectedIndex() == 0 ) {
 							       //no return so we can insert since he is not ni the block list
 							       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
-							       esql.executeQuery(insertQuery);
+							       int rows = esql.executeQuery(insertQuery);
 							       //should work now
 						   }
 						   else {
 						   		   //no return so we can insert since he is not ni the block list
 							       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT block_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
-							       esql.executeQuery(insertQuery);
+							       int rows = esql.executeQuery(insertQuery);
 							       //should work now
 						   }
 				       }
