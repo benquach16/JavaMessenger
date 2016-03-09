@@ -43,6 +43,30 @@ public class PanelFactory
 		BasicWindow mainWindow = new BasicWindow();
 		return mainWindow;
 	}
+    
+    public Window createEditMessageWindow(MultiWindowTextGUI gui, final Messenger esql)
+	{
+
+	    final BasicWindow window = new BasicWindow();
+	    window.setHints(Arrays.asList(Window.Hint.CENTERED));
+	    final Panel panel = new Panel();
+	    final TextBox text = new TextBox();
+	    panel.addComponent(text);
+	    panel.addComponent(
+		new Button("Edit"));
+	    panel.addComponent(
+		new Button("Cancel",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       window.close();
+				   }
+			   }));
+	    window.setComponent(panel.withBorder(Borders.doubleLine("Edit Message")));
+	    gui.addWindowAndWait(window);
+	    return window;
+	}
 
 	public Window createMessagePopup(MultiWindowTextGUI gui, String str)
 	{
@@ -90,11 +114,18 @@ public class PanelFactory
 			       public void run()
 				   {
 				       //parse friends to add
+				       try
+				       {
 				       String query3;
 				       String[] parseFriends = friends.getText().split(",");
 				       for (int i = 0; i < parseFriends.length; ++i) {
 					   query3 = String.format("INSERT INTO CHAT_LIST VALUES ('%s', '%s');", _currentChatId, parseFriends[i]);
 					   esql.executeUpdate(query3);
+				       }
+				       }
+				       catch(Exception e)
+				       {
+					   
 				       }
 				   }
 			   }));
@@ -110,7 +141,25 @@ public class PanelFactory
 		    Panel nPanel = new Panel();
 		    nPanel.setLayoutManager(new GridLayout(2));
 		    nPanel.addComponent(new Label(ret.get(i).get(1).trim()));
-		    nPanel.addComponent(new Button("Edit"));
+		    nPanel.addComponent(
+			new Button("Edit",
+				   new Runnable()
+				   {
+				       public void run()
+					   {
+					       //do a query so we dont let the wrong user edit the message
+					       try
+					       {
+						   String query = "";
+					       createEditMessageWindow(gui, esql);
+
+					       }
+					       catch(Exception e)
+					       {
+					       }
+
+					   }
+				   }));
 		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3).trim())));
 		}
 
