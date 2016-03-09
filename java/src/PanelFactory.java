@@ -31,7 +31,10 @@ import com.googlecode.lanterna.TerminalPosition;
 
 public class PanelFactory
 {
+    //god, please forgive me for the code i am about to write
+    
 	public static String _currentChatId;
+    public static String _currentMessageId;
 	
 	public PanelFactory()
 	{
@@ -65,6 +68,29 @@ public class PanelFactory
 			   }));
 	    window.setComponent(panel.withBorder(Borders.doubleLine("Edit Message")));
 	    gui.addWindowAndWait(window);
+	    return window;
+	}
+
+    public Window createSetStatusWindow(MultiWindowTextGUI gui, final Messenger esql)
+	{
+	    final BasicWindow window = new BasicWindow();
+	    window.setHints(Arrays.asList(Window.Hint.CENTERED));
+	    final Panel panel = new Panel();
+	    final TextBox text = new TextBox();
+	    panel.addComponent(text);
+	    panel.addComponent(
+		new Button("Edit"));
+	    panel.addComponent(
+		new Button("Cancel",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       window.close();
+				   }
+			   }));
+	    window.setComponent(panel.withBorder(Borders.doubleLine("Edit Status")));
+	    gui.addWindowAndWait(window);	    
 	    return window;
 	}
 
@@ -107,6 +133,7 @@ public class PanelFactory
 	    
 	    usersPanel.addComponent(usersInChat.withBorder(Borders.singleLine("Users")));
 	    final TextBox friends = new TextBox();
+	    usersPanel.addComponent(friends);
 	    usersPanel.addComponent(
 		new Button("Add Users",
 			   new Runnable()
@@ -141,6 +168,7 @@ public class PanelFactory
 		    Panel nPanel = new Panel();
 		    nPanel.setLayoutManager(new GridLayout(2));
 		    nPanel.addComponent(new Label(ret.get(i).get(1).trim()));
+		    nPanel.addComponent(new EmptySpace(new TerminalSize(0,0)));
 		    nPanel.addComponent(
 			new Button("Edit",
 				   new Runnable()
@@ -158,6 +186,21 @@ public class PanelFactory
 					       {
 					       }
 
+					   }
+				   }));
+		    nPanel.addComponent(
+			new Button("Delete",
+				   new Runnable()
+				   {
+				       public void run()
+					   {
+					       //just delete here
+					       try
+					       {
+					       }
+					       catch(Exception e)
+					       {
+					       }
 					   }
 				   }));
 		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3).trim())));
@@ -397,6 +440,26 @@ public class PanelFactory
 		    public void run()
 			{
 			    createCreateChatWindow(gui, esql);
+			}
+		}));
+	userPanel.addComponent(
+	    new Button(
+		"Set User Status",
+		new Runnable()
+		{
+		    public void run()
+			{
+
+			}
+		}));
+	userPanel.addComponent(
+	    new Button(
+		"Delete User",
+		new Runnable()
+		{
+		    public void run()
+			{
+
 			}
 		}));
 
