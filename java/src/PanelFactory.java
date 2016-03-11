@@ -47,6 +47,86 @@ public class PanelFactory
 		BasicWindow mainWindow = new BasicWindow();
 		return mainWindow;
 	}
+
+
+    public void regenerateChatMessages(Panel panel,ActionListBox usersInChat, final MultiWindowTextGUI gui,final Messenger esql)
+	{
+	    //delete all components from a panel then requery
+	    panel.removeAllComponents();
+	    try
+	    {
+		//fetch only latest 10
+		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT 10;", _currentChatId);
+		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+		for(int i = 0; i < ret.size(); i++)
+		{
+			final int uhh = i;
+			_currentMessageId = ret.get(uhh).get(0);
+			Panel nPanel = new Panel();
+		    nPanel.setLayoutManager(new GridLayout(2));
+		    nPanel.addComponent(new Label(ret.get(i).get(1).trim() + " on " + ret.get(i).get(2).trim()));
+		    nPanel.addComponent(new EmptySpace(new TerminalSize(0,0)));
+		    nPanel.addComponent(
+			new Button("Edit",
+				   new Runnable()
+				   {
+				       public void run()
+					   {
+					       //do a query so we dont let the wrong user edit the message
+					       try
+					       {
+					       		createEditMessageWindow(gui,esql);
+					       }
+					       catch(Exception e)
+					       {
+					       }
+
+					   }
+				   }));
+		    nPanel.addComponent(
+			new Button("Delete",
+				   new Runnable()
+				   {
+				       public void run()
+					   {
+					       //just delete here
+					       try
+					       {
+					       	// Need to get _msgID...maybe that worked
+					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login;", _currentMessageId, Messenger._currentUser);
+					       	esql.executeQuery(query4);
+					       }
+					       catch(Exception e)
+					       {
+					       }
+					   }
+				   }));
+		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3).trim())));
+		}
+
+		//now fetch users in the chat
+		String query2 = String.format("SELECT member FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
+		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
+		for(int i = 0; i < ret2.size(); i++)
+		{
+		    usersInChat.addItem(
+			ret2.get(i).get(0).trim(),
+			new Runnable()
+			{
+			    public void run()
+				{
+				}
+			}
+			);
+		}
+	    }
+	    catch(Exception e)
+	    {
+		
+	    }
+	}
+
+
     
     public Window createEditMessageWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
@@ -230,78 +310,7 @@ public class PanelFactory
 	    			}
 	    		}
 	    ));
-	    try
-	    {
-		//fetch only latest 10
-		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT 10;", _currentChatId);
-		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
-		for(int i = 0; i < ret.size(); i++)
-		{
-			final int uhh = i;
-			_currentMessageId = ret.get(uhh).get(0);
-			Panel nPanel = new Panel();
-		    nPanel.setLayoutManager(new GridLayout(2));
-		    nPanel.addComponent(new Label(ret.get(i).get(1).trim() + " on " + ret.get(i).get(2).trim()));
-		    nPanel.addComponent(new EmptySpace(new TerminalSize(0,0)));
-		    nPanel.addComponent(
-			new Button("Edit",
-				   new Runnable()
-				   {
-				       public void run()
-					   {
-					       //do a query so we dont let the wrong user edit the message
-					       try
-					       {
-					       		createEditMessageWindow(gui,esql);
-					       }
-					       catch(Exception e)
-					       {
-					       }
-
-					   }
-				   }));
-		    nPanel.addComponent(
-			new Button("Delete",
-				   new Runnable()
-				   {
-				       public void run()
-					   {
-					       //just delete here
-					       try
-					       {
-					       	// Need to get _msgID...maybe that worked
-					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login;", _currentMessageId, Messenger._currentUser);
-					       	esql.executeQuery(query4);
-					       }
-					       catch(Exception e)
-					       {
-					       }
-					   }
-				   }));
-		    panel.addComponent(nPanel.withBorder(Borders.singleLine(ret.get(i).get(3).trim())));
-		}
-
-		//now fetch users in the chat
-		String query2 = String.format("SELECT member FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
-		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
-		for(int i = 0; i < ret2.size(); i++)
-		{
-		    usersInChat.addItem(
-			ret2.get(i).get(0).trim(),
-			new Runnable()
-			{
-			    public void run()
-				{
-				}
-			}
-			);
-		}
-	    }
-	    catch(Exception e)
-	    {
-		
-	    }
-
+	    regenerateChatMessages(panel, usersInChat, gui, esql);
 	    panel.addComponent(inputString);
 	    Button enter = new Button("Send!",
 				      new Runnable()
