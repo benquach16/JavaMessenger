@@ -193,29 +193,39 @@ public class PanelFactory
 	    		{
 	    			public void run()
 	    			{
-	    				
 	    				try {
-	    					String isDeleteable = String.format("SELECT * FROM CHAT WHERE init_sender='%s' AND chat_id='%s';", Messenger._currentUser, _currentChatId);
-	    					List<List<String>> ret = esql.executeQueryAndReturnResult(isDeleteable);
-	    					// If ret even has a value, then you are the owner
-	    					if ( ret.get(0).get(1).length() > 0 ) {
-	    						createMessagePopup(gui, "Goodbye friends :(");
-	    						// Need to delete in order of messages --> chat list --> chat
-	    						String queryDelMess = String.format("DELETE FROM MESSAGE WHERE chat_id='%s';", _currentChatId);
-	    						//esql.executeQuery(queryDelMess);
-	    						String queryDelChtL = String.format("DELETE FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
-	    						//esql.executeQuery(queryDelChtL);
-	    						String queryDelChat = String.format("DELETE FROM CHAT WHERE chat_id='%s' AND init_sender='%s';",_currentMessageId, Messenger._currentUser);
-	    						esql.executeQuery(queryDelChat + queryDelChtL + queryDelChat);
-	    					}
-	    					else {
-	    						// Ret does not have anything, so some exception is thrown
-	    						createMessagePopup(gui, "Why am I here?");
-	    					}
+		    				String isDeleteable = String.format("SELECT * FROM CHAT WHERE init_sender='%s' AND chat_id='%s';", Messenger._currentUser, _currentChatId);
+		    				List<List<String>> ret = esql.executeQueryAndReturnResult(isDeleteable);
+		    				final String tmp = _currentChatId;
+		    				if ( ret.get(0).get(1).length() > 0 ) {
+			    				try {
+			    					createMessagePopup(gui, "Goodbye friends :(");
+			    					// Need to delete in order of messages --> chat list --> chat
+			    					String queryDelMess = String.format("DELETE FROM MESSAGE WHERE chat_id='%s';", _currentChatId);
+			    					esql.executeUpdate(queryDelMess);
+			    				}
+			    				catch(Exception e) {
+			    					// For some reason, it goes into if, does the first query and doesn't do the rest, but they all individually work
+			    					//createMessagePopup(gui, "Cannot delete: You are not the chat creator!");		
+			    				}
+			    				try {
+			    					String queryDelChtL = String.format("DELETE FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
+			    					esql.executeUpdate(queryDelChtL);
+			    				}
+			    				catch (Exception e) {
+			    					
+			    				}
+			    				try {
+			    					String queryDelChat = String.format("DELETE FROM CHAT WHERE chat_id='%s' AND init_sender='%s';",_currentChatId, Messenger._currentUser);
+			    					esql.executeUpdate(queryDelChat);
+			    				}
+			    				catch (Exception e) {
+			    					
+			    				}
+		    				}
 	    				}
-	    				catch(Exception e) {
-	    					// For some reason, it goes into if, does the first query and doesn't do the rest, but they all individually work
-	    					createMessagePopup(gui, "Cannot delete: You are not the chat creator!");		
+	    				catch (Exception e) {
+	    					
 	    				}
 	    			}
 	    		}
