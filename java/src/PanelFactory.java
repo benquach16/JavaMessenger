@@ -32,6 +32,7 @@ import com.googlecode.lanterna.TerminalPosition;
 public class PanelFactory
 {
     //god, please forgive me for the code i am about to write
+    // For certainly Tony does not
     
 	public static String _currentChatId;
     public static String _currentMessageId;
@@ -56,7 +57,22 @@ public class PanelFactory
 	    final TextBox text = new TextBox();
 	    panel.addComponent(text);
 	    panel.addComponent(
-		new Button("Edit"));
+		new Button("Edit",
+				new Runnable()
+				{
+					public void run()
+					{
+						String updateString = text.getText().trim();
+						try{
+							// Need to get _msgID and the text...maybe that worked
+					    	String query = String.format("UPDATE MESSAGE SET msg_text='%s', msg_timestamp=now() FROM USR WHERE USR.login='%s' AND USR.login=MESSAGE.sender_login AND MESSAGE.msg_id='%s'; ",updateString, Messenger._currentUser, _currentMessageId);
+					    	esql.executeQuery(query);
+						}
+						catch(Exception e){
+							
+						}
+					}
+				}));
 	    panel.addComponent(
 		new Button("Cancel",
 			   new Runnable()
@@ -79,7 +95,22 @@ public class PanelFactory
 	    final TextBox text = new TextBox();
 	    panel.addComponent(text);
 	    panel.addComponent(
-		new Button("Edit"));
+		new Button("Edit",
+				new Runnable()
+				{
+					public void run()
+					{
+						String updateString = text.getText().trim();
+						try{
+							// Need to get _msgID and the text...maybe that worked
+					    	String query = String.format("UPDATE USR SET status='%s' WHERE USR.login='%s';",updateString, Messenger._currentUser);
+					    	esql.executeQuery(query);
+						}
+						catch(Exception e){
+							
+						}
+					}
+				}));
 	    panel.addComponent(
 		new Button("Cancel",
 			   new Runnable()
@@ -157,7 +188,38 @@ public class PanelFactory
 				   }
 			   }));
 	    
-	    usersPanel.addComponent(new Button("Delete Chat"));
+	    usersPanel.addComponent(new Button("Delete Chat",
+	    		new Runnable()
+	    		{
+	    			public void run()
+	    			{
+	    				
+	    				try {
+	    					String isDeleteable = String.format("SELECT * FROM CHAT WHERE init_sender='%s' AND chat_id='%s';", Messenger._currentUser, _currentChatId);
+	    					List<List<String>> ret = esql.executeQueryAndReturnResult(isDeleteable);
+	    					// Just checking if this returned anything, and chat_type is always defined
+	    					if (ret.get(0).get(1).length() > 1 ) {
+	    						createMessagePopup(gui, "Goodbye friends :(");
+	    						// Need to delete in order of messages --> chat list --> chat
+	    						String queryDelMess = String.format("DELETE FROM MESSAGE WHERE chat_id='%s';", _currentChatId);
+	    						//esql.executeQuery(queryDelMess);
+	    						String queryDelChtL = String.format("DELETE FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
+	    						//esql.executeQuery(queryDelChtL);
+	    						String queryDelChat = String.format("DELETE FROM CHAT WHERE chat_id='%s' AND init_sender='%s';",_currentMessageId, Messenger._currentUser);
+	    						esql.executeQuery(queryDelChat + queryDelChtL + queryDelChat);
+	    					}
+	    					else {
+	    						// Ret does not have anything, so some exception is thrown
+	    						createMessagePopup(gui, "Why am I here?");
+	    					}
+	    				}
+	    				catch(Exception e) {
+	    					// For some reason, it goes into if, does the first query and doesn't do the rest, but they all individually work
+	    					createMessagePopup(gui, "Cannot delete: You are not the chat creator!");		
+	    				}
+	    			}
+	    		}
+	    ));
 	    try
 	    {
 		//fetch only latest 10
@@ -165,7 +227,9 @@ public class PanelFactory
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 		for(int i = ret.size() - 1; i >= 0; i--)
 		{
-		    Panel nPanel = new Panel();
+			final int uhh = i;
+			_currentMessageId = ret.get(uhh).get(0);
+			Panel nPanel = new Panel();
 		    nPanel.setLayoutManager(new GridLayout(2));
 		    nPanel.addComponent(new Label(ret.get(i).get(1).trim()));
 		    nPanel.addComponent(new EmptySpace(new TerminalSize(0,0)));
@@ -178,9 +242,7 @@ public class PanelFactory
 					       //do a query so we dont let the wrong user edit the message
 					       try
 					       {
-						   String query = "";
-					       createEditMessageWindow(gui, esql);
-
+					       		createEditMessageWindow(gui,esql);
 					       }
 					       catch(Exception e)
 					       {
@@ -197,6 +259,9 @@ public class PanelFactory
 					       //just delete here
 					       try
 					       {
+					       	// Need to get _msgID...maybe that worked
+					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login", _currentMessageId, Messenger._currentUser);
+					       	esql.executeQuery(query4);
 					       }
 					       catch(Exception e)
 					       {
@@ -449,7 +514,7 @@ public class PanelFactory
 		{
 		    public void run()
 			{
-
+				createSetStatusWindow(gui, esql);
 			}
 		}));
 	userPanel.addComponent(
@@ -459,7 +524,15 @@ public class PanelFactory
 		{
 		    public void run()
 			{
-
+				try{
+					// Since Chat and Chat_List reference USR, should be unable to delete unless not in a chat
+					String query = String.format("DELETE FROM USR WHERE login='%s';", Messenger._currentUser);
+					esql.executeQuery(query);
+				}
+				catch( Exception e ) {
+					// Seems to pop up no matter what
+					createMessagePopup(gui, "Could not delete user, user it still in a chat!");
+				}
 			}
 		}));
 
