@@ -48,7 +48,7 @@ public class PanelFactory
 		return mainWindow;
 	}
     
-    public Window createEditMessageWindow(MultiWindowTextGUI gui, final Messenger esql)
+    public Window createEditMessageWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 
 	    final BasicWindow window = new BasicWindow();
@@ -69,7 +69,7 @@ public class PanelFactory
 					    	esql.executeQuery(query);
 						}
 						catch(Exception e){
-							
+							//createMessagePopup(gui, "Cannot edit: You are not message author!");
 						}
 					}
 				}));
@@ -197,8 +197,8 @@ public class PanelFactory
 	    				try {
 	    					String isDeleteable = String.format("SELECT * FROM CHAT WHERE init_sender='%s' AND chat_id='%s';", Messenger._currentUser, _currentChatId);
 	    					List<List<String>> ret = esql.executeQueryAndReturnResult(isDeleteable);
-	    					// Just checking if this returned anything, and chat_type is always defined
-	    					if (ret.get(0).get(1).length() > 1 ) {
+	    					// If ret even has a value, then you are the owner
+	    					if ( ret.get(0).get(1).length() > 0 ) {
 	    						createMessagePopup(gui, "Goodbye friends :(");
 	    						// Need to delete in order of messages --> chat list --> chat
 	    						String queryDelMess = String.format("DELETE FROM MESSAGE WHERE chat_id='%s';", _currentChatId);
@@ -225,13 +225,13 @@ public class PanelFactory
 		//fetch only latest 10
 		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT 10;", _currentChatId);
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
-		for(int i = ret.size() - 1; i >= 0; i--)
+		for(int i = 0; i < ret.size(); i++)
 		{
 			final int uhh = i;
 			_currentMessageId = ret.get(uhh).get(0);
 			Panel nPanel = new Panel();
 		    nPanel.setLayoutManager(new GridLayout(2));
-		    nPanel.addComponent(new Label(ret.get(i).get(1).trim()));
+		    nPanel.addComponent(new Label(ret.get(i).get(1).trim() + " on " + ret.get(i).get(2).trim()));
 		    nPanel.addComponent(new EmptySpace(new TerminalSize(0,0)));
 		    nPanel.addComponent(
 			new Button("Edit",
@@ -260,7 +260,7 @@ public class PanelFactory
 					       try
 					       {
 					       	// Need to get _msgID...maybe that worked
-					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login", _currentMessageId, Messenger._currentUser);
+					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login;", _currentMessageId, Messenger._currentUser);
 					       	esql.executeQuery(query4);
 					       }
 					       catch(Exception e)
@@ -272,7 +272,7 @@ public class PanelFactory
 		}
 
 		//now fetch users in the chat
-		String query2 = String.format("SELECT member FROM CHAT_LIST WHERE chat_id='%s'", _currentChatId);
+		String query2 = String.format("SELECT member FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
 		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
 		for(int i = 0; i < ret2.size(); i++)
 		{
@@ -306,18 +306,20 @@ public class PanelFactory
 						      int rows = esql.executeQuery(query);
 						  }
 						  catch(Exception e) {
-						      String str = e.getMessage();
-						      Thread t = Thread.currentThread();
-						      t.getUncaughtExceptionHandler().uncaughtException(t, e);
-						      createMessagePopup(gui, e.getMessage());					  
-						      try
+							// These are more trouble than they're worth
+							//String str = e.getMessage();
+							//Thread t = Thread.currentThread();
+							//t.getUncaughtExceptionHandler().uncaughtException(t, e);
+							//createMessagePopup(gui, e.getMessage());	
+							//Pretty sure this also doesn't work as intended
+						      /*try
 						      {
-							  gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+							  	gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
 						      }
 						      catch(Exception ex)
 						      {
-							  createMessagePopup(gui, "could not refresh");
-						      }
+							  	createMessagePopup(gui, "could not refresh");
+						      }*/
 						  }
 					      }
 				      });
