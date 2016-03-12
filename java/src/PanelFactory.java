@@ -60,7 +60,10 @@ public class PanelFactory
 		//fetch only latest 10
 		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT %d;", _currentChatId, msgNum.intValue());
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
-		for(int i = ret.size()-10; i < ret.size(); i++)
+		int i = 0;
+		if(ret.size() > 10)
+		    i = ret.size() - 10;
+		for(; i < ret.size(); i++)
 		{
 			final int uhh = i;
 			_currentMessageId = ret.get(uhh).get(0);
@@ -109,10 +112,10 @@ public class PanelFactory
 		//now fetch users in the chat
 		String query2 = String.format("SELECT member FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
 		List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
-		for(int i = 0; i < ret2.size(); i++)
+		for(int j = 0; j < ret2.size(); j++)
 		{
 		    usersInChat.addItem(
-			ret2.get(i).get(0).trim(),
+			ret2.get(j).get(0).trim(),
 			new Runnable()
 			{
 			    public void run()
