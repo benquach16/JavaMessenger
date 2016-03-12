@@ -79,13 +79,9 @@ public class PanelFactory
 				       public void run()
 					   {
 					       //do a query so we dont let the wrong user edit the message
-					       try
-					       {
+					       _currentMessageId = ret.get(uhh).get(0);
 					       		createEditMessageWindow(gui,esql);
-					       }
-					       catch(Exception e)
-					       {
-					       }
+
 
 					   }
 				   }));
