@@ -492,7 +492,7 @@ public class PanelFactory
 	try
 	{
 	    //String query = String.format("SELECT * FROM CHAT_LIST WHERE member='%s';", Messenger._currentUser);
-	    String query = String.format("SELECT C.* FROM CHAT C, CHAT_LIST CL WHERE C.chat_id = CL.chat_id AND CL.member='%s';", Messenger._currentUser);
+	    String query = String.format("SELECT C.* FROM CHAT C, MESSAGE M WHERE M.msg_timestamp IN (SELECT MAX(M1.msg_timestamp) AS ts FROM MESSAGE M1 WHERE M1.chat_id = C.chat_id) AND  C.chat_id = M.chat_id AND C.chat_id IN  (SELECT CL.chat_id FROM CHAT_LIST CL WHERE CL.member='%s' ) ORDER BY M.msg_timestamp DESC;", Messenger._currentUser);
 	    final List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 	    for(int i = 0; i < ret.size(); i++)
 	    {
