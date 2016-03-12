@@ -59,13 +59,14 @@ public class PanelFactory
 	    {
 		//fetch only latest 10
 		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT %d;", _currentChatId, msgNum.intValue());
-		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
+		final List<List<String>> ret = esql.executeQueryAndReturnResult(query);
 		int i = 0;
 		if(ret.size() > 10)
 		    i = ret.size() - 10;
 		for(; i < ret.size(); i++)
 		{
 			final int uhh = i;
+			//bad news bears
 			_currentMessageId = ret.get(uhh).get(0);
 			Panel nPanel = new Panel();
 		    nPanel.setLayoutManager(new GridLayout(2));
@@ -98,11 +99,26 @@ public class PanelFactory
 					       try
 					       {
 					       	// Need to get _msgID...maybe that worked
-					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login;", _currentMessageId, Messenger._currentUser);
-					       	esql.executeUpdate(query4);
+
+						   String query4 = String.format("DELETE FROM MESSAGE WHERE msg_id='%s' AND sender_login='%s';", ret.get(uhh).get(0), Messenger._currentUser);
+						   //createMessagePopup(gui, query4);
+						   esql.executeUpdate(query4);
 					       }
 					       catch(Exception e)
 					       {
+		String str = e.getMessage();
+		Thread t = Thread.currentThread();
+		t.getUncaughtExceptionHandler().uncaughtException(t, e);
+		createMessagePopup(gui, e.getMessage());					  
+		try
+		{
+		    gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+		}
+		catch(Exception ex)
+		{
+		    createMessagePopup(gui, "could not refresh");
+		}		
+
 					       }
 					   }
 				   }));
