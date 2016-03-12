@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -49,16 +50,17 @@ public class PanelFactory
 	}
 
 
-    public void regenerateChatMessages(Panel panel,ActionListBox usersInChat, final MultiWindowTextGUI gui,final Messenger esql)
+    public void regenerateChatMessages(Panel panel,ActionListBox usersInChat, final MultiWindowTextGUI gui,final Messenger esql, AtomicInteger msgNum)
 	{
 	    //delete all components from a panel then requery
 	    panel.removeAllComponents();
+	    usersInChat.clearItems();
 	    try
 	    {
 		//fetch only latest 10
-		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT 10;", _currentChatId);
+		String query = String.format("SELECT * FROM MESSAGE WHERE chat_id='%s' ORDER BY msg_timestamp DESC LIMIT %d;", _currentChatId, msgNum.intValue());
 		List<List<String>> ret = esql.executeQueryAndReturnResult(query);
-		for(int i = 0; i < ret.size(); i++)
+		for(int i = ret.size()-10; i < ret.size(); i++)
 		{
 			final int uhh = i;
 			_currentMessageId = ret.get(uhh).get(0);
@@ -234,16 +236,17 @@ public class PanelFactory
 	    Panel mainPanel = new Panel();
 	    mainPanel.setLayoutManager(new GridLayout(2));
 	    Panel usersPanel = new Panel();
-	    
+	    Panel chatPanel = new Panel();
 	    mainPanel.addComponent(usersPanel);
 
-	    Panel panel = new Panel();
+	    final Panel panel = new Panel();
 
 	    final TextBox inputString = new TextBox();
-	    ActionListBox usersInChat = new ActionListBox();
+	    final ActionListBox usersInChat = new ActionListBox();
 	    
 	    usersPanel.addComponent(usersInChat.withBorder(Borders.singleLine("Users")));
 	    final TextBox friends = new TextBox();
+	    final AtomicInteger msgNum = new AtomicInteger(10);
 	    usersPanel.addComponent(friends);
 	    usersPanel.addComponent(
 		new Button("Add Users",
@@ -310,8 +313,20 @@ public class PanelFactory
 	    			}
 	    		}
 	    ));
-	    regenerateChatMessages(panel, usersInChat, gui, esql);
-	    panel.addComponent(inputString);
+	    regenerateChatMessages(panel, usersInChat, gui, esql, msgNum);
+
+	    chatPanel.addComponent(
+		new Button("Next",
+			   new Runnable()
+			   {
+			       public void run()
+				   {
+				       msgNum.getAndSet(msgNum.intValue() + 10);
+				       regenerateChatMessages(panel,usersInChat,gui,esql,msgNum);
+				   }
+			   }));
+
+	    chatPanel.addComponent(inputString);
 	    Button enter = new Button("Send!",
 				      new Runnable()
 				      {
@@ -343,8 +358,8 @@ public class PanelFactory
 					      }
 				      });
 
-	    panel.addComponent(enter);
-	    panel.addComponent(new Button("Quit",
+	    chatPanel.addComponent(enter);
+	    chatPanel.addComponent(new Button("Quit",
 		       new Runnable()
 		       {
 			   public void run()
@@ -353,6 +368,8 @@ public class PanelFactory
 			      }
 		       }));
 	    mainPanel.addComponent(panel);
+	    mainPanel.addComponent(new EmptySpace(new TerminalSize(0,0)));
+	    mainPanel.addComponent(chatPanel);
 	    window.setComponent(mainPanel.withBorder(Borders.doubleLine(_currentChatId)));
 
 	    gui.addWindowAndWait(window);
