@@ -337,14 +337,16 @@ public class PanelFactory
 						      String textToSend = inputString.getText();
 						      String query = String.format("INSERT INTO MESSAGE VALUES (DEFAULT, '%s', now(), '%s', '%s');", textToSend, Messenger._currentUser, _currentChatId);
 						      // catch for msg length
-						      int rows = esql.executeQuery(query);
+						      esql.executeUpdate(query);
+						      msgNum.getAndSet(10);
+						      regenerateChatMessages(panel,usersInChat,gui,esql,msgNum);
 						  }
 						  catch(Exception e) {
 							// These are more trouble than they're worth
-							//String str = e.getMessage();
-							//Thread t = Thread.currentThread();
-							//t.getUncaughtExceptionHandler().uncaughtException(t, e);
-							//createMessagePopup(gui, e.getMessage());	
+							String str = e.getMessage();
+							Thread t = Thread.currentThread();
+							t.getUncaughtExceptionHandler().uncaughtException(t, e);
+							createMessagePopup(gui, e.getMessage());	
 							//Pretty sure this also doesn't work as intended
 						      /*try
 						      {
