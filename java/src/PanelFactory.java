@@ -99,7 +99,7 @@ public class PanelFactory
 					       {
 					       	// Need to get _msgID...maybe that worked
 					       	String query4 = String.format("DELETE FROM MESSAGE M USING USR U WHERE M.msg_id='%s' AND U.login='%s' AND U.login=M.sender_login;", _currentMessageId, Messenger._currentUser);
-					       	esql.executeQuery(query4);
+					       	esql.executeUpdate(query4);
 					       }
 					       catch(Exception e)
 					       {
@@ -714,12 +714,16 @@ public class PanelFactory
 						esql.executeUpdate(query1);						 
 						esql.executeUpdate(query2);
 						
+						String query4 = String.format("INSERT INTO MESSAGE VALUES (DEFAULT, 'Welcome to the chatroom!', now(), '%s', (SELECT chat_id from CHAT ORDER BY chat_id DESC LIMIT 1));", Messenger._currentUser);
+						esql.executeUpdate(query4);
+						
 						String query3;
 						String[] parseFriends = friends.getText().split(",");
 						for (int i = 0; i < parseFriends.length; ++i) {
 							query3 = String.format("INSERT INTO CHAT_LIST VALUES ((SELECT chat_id from CHAT ORDER BY chat_id DESC LIMIT 1), '%s');", parseFriends[i]);
 							esql.executeUpdate(query3);
 						}
+						
 				    }
 				    catch(Exception e)
 				    {
