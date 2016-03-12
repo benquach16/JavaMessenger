@@ -616,8 +616,7 @@ public class PanelFactory
 				
 				
 			    	try{
-			    		
-				    	   
+   
 				    	String query420 = String.format("DELETE FROM USER_LIST_CONTAINS ULC USING USR U WHERE ULC.list_member='%s' AND U.block_list=ULC.list_id AND U.login='%s';", ret.get(k).get(0), Messenger._currentUser);
 				    	esql.executeQuery(query420);
 			    	}
@@ -627,12 +626,12 @@ public class PanelFactory
 			    }
 		    });
 		}
-		String query2 = String.format("SELECT ULC.list_member FROM USR U, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND U.contact_list = ULC.list_id;", Messenger._currentUser);
+		String query2 = String.format("SELECT login, status FROM usr WHERE login IN (SELECT ULC.list_member FROM USR U, USER_LIST_CONTAINS ULC WHERE U.login = '%s' AND U.contact_list = ULC.list_id);", Messenger._currentUser);
 		final List<List<String>> ret2 = esql.executeQueryAndReturnResult(query2);
 		for(int i = 0; i < ret2.size(); i++)
 		{
 			final int j = i;
-			friendListBox.addItem(ret2.get(i).get(0).trim(), new Runnable()
+			friendListBox.addItem(ret2.get(i).get(0).trim() + ": " + ret2.get(i).get(1).trim(), new Runnable()
 		    {
 			public void run()
 			    {
@@ -641,7 +640,18 @@ public class PanelFactory
 				    	esql.executeQuery(query420BlazeIt);
 			    	}
 			    	catch(Exception e) {
-
+				     String str = e.getMessage();
+				     Thread t = Thread.currentThread();
+				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
+				     createMessagePopup(gui, e.getMessage());
+				     try
+				     {
+					 gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+				     }
+				     catch(Exception ex)
+				     {
+					 createMessagePopup(gui, "could not refresh");
+				     }
 			    	}
 			    }
 		    });
