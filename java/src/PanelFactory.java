@@ -579,14 +579,27 @@ public class PanelFactory
 		{
 		    public void run()
 			{
-				try{
-					// Since Chat and Chat_List reference USR, should be unable to delete unless not in a chat
-					String query = String.format("DELETE FROM USR WHERE login='%s';", Messenger._currentUser);
-					esql.executeQuery(query);
+				try {
+					String queryActive = String.format("SELECT * FROM USR U, CHAT_LIST CL WHERE U.login=CL.member AND U.login='%s';", Messenger._currentUser);
+					final List<List<String>> ret = esql.executeQueryAndReturnResult(queryActive);
+					
+					if (ret.isEmpty()) {
+						try{
+							// Since Chat and Chat_List reference USR, should be unable to delete unless not in a chat
+							String query = String.format("DELETE FROM USR WHERE login='%s';", Messenger._currentUser);
+							esql.executeQuery(query);
+						}
+						catch( Exception e ) {
+							// Seems to pop up no matter what
+							//createMessagePopup(gui, "Could not delete user, user it still in a chat!");
+						}
+					}
+					else {
+						createMessagePopup(gui, "Could not delete user, user it still in a chat!");
+					}
 				}
-				catch( Exception e ) {
-					// Seems to pop up no matter what
-					createMessagePopup(gui, "Could not delete user, user it still in a chat!");
+				catch ( Exception e) {
+					
 				}
 			}
 		}));
