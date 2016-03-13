@@ -641,6 +641,7 @@ public class PanelFactory
 						try{
 							// Since Chat and Chat_List reference USR, should be unable to delete unless not in a chat
 							String query = String.format("DELETE FROM USR WHERE login='%s';", Messenger._currentUser);
+							createMessagePopup(gui, "Deleted!");
 							esql.executeQuery(query);
 						}
 						catch( Exception e ) {
@@ -700,7 +701,7 @@ public class PanelFactory
 			    	try{
    
 				    String query420 = String.format("DELETE FROM user_list_contains WHERE list_id = (SELECT block_list FROM usr WHERE login = '%s') AND list_member = '%s'", Messenger._currentUser, ret.get(k).get(0).trim());
-				    //createMessagePopup(gui, query420);
+				    createMessagePopup(gui, "Deleted!");
 				    	esql.executeUpdate(query420);
 			    	}
 			    	catch(Exception e) {
@@ -737,6 +738,7 @@ public class PanelFactory
 			    {
 			    	try{ 
 				    	String query420BlazeIt = String.format("DELETE FROM user_list_contains WHERE list_id = (SELECT contact_list FROM usr WHERE login = '%s') AND list_member = '%s'", Messenger._currentUser, ret2.get(j).get(0).trim());
+					createMessagePopup(gui, "Deleted!");
 				    	esql.executeUpdate(query420BlazeIt);
 			    	}
 			    	catch(Exception e) {
