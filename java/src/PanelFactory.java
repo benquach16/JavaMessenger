@@ -102,18 +102,18 @@ public class PanelFactory
 					       }
 					       catch(Exception e)
 					       {
-		String str = e.getMessage();
-		Thread t = Thread.currentThread();
-		t.getUncaughtExceptionHandler().uncaughtException(t, e);
-		createMessagePopup(gui, e.getMessage());					  
-		try
-		{
-		    gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
-		}
-		catch(Exception ex)
-		{
-		    createMessagePopup(gui, "could not refresh");
-		}		
+						   String str = e.getMessage();
+						   Thread t = Thread.currentThread();
+						   t.getUncaughtExceptionHandler().uncaughtException(t, e);
+						   createMessagePopup(gui, e.getMessage());					  
+						   try
+						   {
+						       gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+						   }
+						   catch(Exception ex)
+						   {
+						       createMessagePopup(gui, "could not refresh");
+						   }		
 
 					       }
 					   }
@@ -139,7 +139,18 @@ public class PanelFactory
 	    }
 	    catch(Exception e)
 	    {
-		
+		String str = e.getMessage();
+		Thread t = Thread.currentThread();
+		t.getUncaughtExceptionHandler().uncaughtException(t, e);
+		createMessagePopup(gui, e.getMessage());					  
+		try
+		{
+		    gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+		}
+		catch(Exception ex)
+		{
+		    createMessagePopup(gui, "could not refresh");
+		}				
 	    }
 	}
 
@@ -162,11 +173,23 @@ public class PanelFactory
 						String updateString = text.getText().trim();
 						try{
 							// Need to get _msgID and the text...maybe that worked
+						    //bug here: if you are not the author it wont throw an exception or tell you that you cant do it, it will just do nothing
 					    	String query = String.format("UPDATE MESSAGE SET msg_text='%s', msg_timestamp=now() FROM USR WHERE USR.login='%s' AND USR.login=MESSAGE.sender_login AND MESSAGE.msg_id='%s'; ",updateString, Messenger._currentUser, _currentMessageId);
-					    	esql.executeQuery(query);
+					    	esql.executeUpdate(query);
 						}
 						catch(Exception e){
-							//createMessagePopup(gui, "Cannot edit: You are not message author!");
+						   String str = e.getMessage();
+						   Thread t = Thread.currentThread();
+						   t.getUncaughtExceptionHandler().uncaughtException(t, e);
+						   createMessagePopup(gui, e.getMessage());					  
+						   try
+						   {
+						       gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+						   }
+						   catch(Exception ex)
+						   {
+						       createMessagePopup(gui, "could not refresh");
+						   }		
 						}
 					}
 				}));
@@ -184,7 +207,7 @@ public class PanelFactory
 	    return window;
 	}
 
-    public Window createSetStatusWindow(MultiWindowTextGUI gui, final Messenger esql)
+    public Window createSetStatusWindow(final MultiWindowTextGUI gui, final Messenger esql)
 	{
 	    final BasicWindow window = new BasicWindow();
 	    window.setHints(Arrays.asList(Window.Hint.CENTERED));
@@ -204,7 +227,18 @@ public class PanelFactory
 					    	esql.executeQuery(query);
 						}
 						catch(Exception e){
-							
+						    String str = e.getMessage();
+						    Thread t = Thread.currentThread();
+						    t.getUncaughtExceptionHandler().uncaughtException(t, e);
+						    createMessagePopup(gui, e.getMessage());					  
+						    try
+						    {
+							gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+						    }
+						    catch(Exception ex)
+						    {
+							createMessagePopup(gui, "could not refresh");
+						    }		
 						}
 					}
 				}));
@@ -304,7 +338,7 @@ public class PanelFactory
 			    				}
 			    				catch(Exception e) {
 			    					// For some reason, it goes into if, does the first query and doesn't do the rest, but they all individually work
-			    					//createMessagePopup(gui, "Cannot delete: You are not the chat creator!");		
+			    					createMessagePopup(gui, "Cannot delete: You are not the chat creator!");		
 			    				}
 			    				try {
 			    					String queryDelChtL = String.format("DELETE FROM CHAT_LIST WHERE chat_id='%s';", _currentChatId);
@@ -323,7 +357,18 @@ public class PanelFactory
 		    				}
 	    				}
 	    				catch (Exception e) {
-	    					
+					    String str = e.getMessage();
+						   Thread t = Thread.currentThread();
+						   t.getUncaughtExceptionHandler().uncaughtException(t, e);
+						   createMessagePopup(gui, e.getMessage());					  
+						   try
+						   {
+						       gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+						   }
+						   catch(Exception ex)
+						   {
+						       createMessagePopup(gui, "could not refresh");
+						   }		
 	    				}
 	    			}
 	    		}
@@ -523,11 +568,20 @@ public class PanelFactory
 	}
 	catch(Exception e)
 	{
-	    Thread t = Thread.currentThread();
-	    t.getUncaughtExceptionHandler().uncaughtException(t, e);
-	    createMessagePopup(gui, e.getMessage());
+						   String str = e.getMessage();
+						   Thread t = Thread.currentThread();
+						   t.getUncaughtExceptionHandler().uncaughtException(t, e);
+						   createMessagePopup(gui, e.getMessage());					  
+						   try
+						   {
+						       gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+						   }
+						   catch(Exception ex)
+						   {
+						       createMessagePopup(gui, "could not refresh");
+						   }		
 	}
-	;		
+			
 
 	Panel chatPanel = new Panel();
 	chatPanel.addComponent(actionListBox);
@@ -645,11 +699,23 @@ public class PanelFactory
 				
 			    	try{
    
-				    	String query420 = String.format("DELETE FROM USER_LIST_CONTAINS ULC USING USR U WHERE ULC.list_member='%s' AND U.block_list=ULC.list_id AND U.login='%s';", ret.get(k).get(0), Messenger._currentUser);
-				    	esql.executeQuery(query420);
+				    String query420 = String.format("DELETE FROM user_list_contains WHERE list_id = (SELECT block_list FROM usr WHERE login = '%s') AND list_member = '%s'", Messenger._currentUser, ret.get(k).get(0).trim());
+				    //createMessagePopup(gui, query420);
+				    	esql.executeUpdate(query420);
 			    	}
 			    	catch(Exception e) {
-
+				     String str = e.getMessage();
+				     Thread t = Thread.currentThread();
+				     t.getUncaughtExceptionHandler().uncaughtException(t, e);
+				     createMessagePopup(gui, e.getMessage());
+				     try
+				     {
+					 gui.getScreen().refresh(Screen.RefreshType.COMPLETE);
+				     }
+				     catch(Exception ex)
+				     {
+					 createMessagePopup(gui, "could not refresh");
+				     }
 			    	}
 			    }
 		    });
@@ -659,13 +725,19 @@ public class PanelFactory
 		for(int i = 0; i < ret2.size(); i++)
 		{
 			final int j = i;
-			friendListBox.addItem(ret2.get(i).get(0).trim() + ": " + ret2.get(i).get(1).trim(), new Runnable()
+			String name = ret2.get(i).get(0).trim();
+			if(ret2.get(i).get(1) != null)
+			{
+			    name = ret2.get(i).get(0).trim() + ": " + ret2.get(i).get(1).trim();
+			}
+			friendListBox.addItem(name, new Runnable()
+
 		    {
 			public void run()
 			    {
 			    	try{ 
-				    	String query420BlazeIt = String.format("DELETE FROM USER_LIST_CONTAINS ULC USING USR U WHERE ULC.list_member='%s' AND U.contact_list=ULC.list_id AND U.login='%s';", ret2.get(j).get(0), Messenger._currentUser);
-				    	esql.executeQuery(query420BlazeIt);
+				    	String query420BlazeIt = String.format("DELETE FROM user_list_contains WHERE list_id = (SELECT contact_list FROM usr WHERE login = '%s') AND list_member = '%s'", Messenger._currentUser, ret2.get(j).get(0).trim());
+				    	esql.executeUpdate(query420BlazeIt);
 			    	}
 			    	catch(Exception e) {
 				     String str = e.getMessage();
@@ -814,13 +886,13 @@ public class PanelFactory
 						   if (comboBox.getSelectedIndex() == 0 ) {
 							       //no return so we can insert since he is not ni the block list
 							       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT contact_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
-							       int rows = esql.executeQuery(insertQuery);
+							       esql.executeUpdate(insertQuery);
 							       //should work now
 						   }
 						   else {
 						   		   //no return so we can insert since he is not ni the block list
 							       String insertQuery = String.format("INSERT INTO USER_LIST_CONTAINS(list_id, list_member) VALUES ( (SELECT block_list FROM USR WHERE login='%s' ), '%s');", Messenger._currentUser, usern);	
-							       int rows = esql.executeQuery(insertQuery);
+							       esql.executeUpdate(insertQuery);
 							       //should work now
 						   }
 				       }
